@@ -2,6 +2,12 @@
 
 ## 推荐工具
 
+### 推荐网站
+
+### 推荐编译器、编辑器、集成开发环境
+
+### CMake
+
 ## 开发平台
 
 ### Windows平台
@@ -159,7 +165,7 @@ CMake目录结构：项目主目录存在一个CMakeLists.txt文件
 1. 包含源文件的子文件夹包含CMakeLists.txt文件，主目录的CMakeLists.txt通过add_subdirectory添加子目录即可；
 2. 包含源文件的子文件夹未包含CMakeLists.txt文件，子目录编译规则体现在主目录的CMakeLists.txt中；
 
-**在 linux 平台下使用 CMake 构建C/C++工程的流程如下:**
+**在 Windows平台下使用 CMake 构建C/C++工程的流程如下:**
 
 - 手动编写 CmakeLists.txt。
 - 执行命令 `cmake PATH`生成 Makefile ( PATH 是顶层CMakeLists.txt 所在的目录 )。
@@ -218,3 +224,32 @@ CMake目录结构：项目主目录存在一个CMakeLists.txt文件
 
 ## 至少需要学习的内容及使用书籍
 
+YC：
+
+C#、Windows平台软件开发、C#调用C/C++、数据结构、Git、Github、WPF、软件工程基本知识
+
+- 《Windows程序设计》、微软的C#/.NET文档
+
+GYJ：
+
+C/C++、编译原理、数据结构与算法、CMake、Git、Github、软件工程基本知识、Windows
+
+- C++：《C++ Primer》、《Effective C++》（可能用）
+- 编译原理：《编译原理》（龙书）、Stanford的课程
+- 数据结构与算法：浙大陈越的课、《挑战程序设计竞赛》、《数据结构与算法分析》（可选）
+- CMake：CMake官方文档
+- Git、Github：自行搜索教程
+- Windows：安个虚拟机
+
+ZZX：
+
+C/C++、编译原理、数据结构与算法、CMake、Git、Github、软件工程基本知识、C#、C++与C#的对接、汇编语言
+
+- C#：微软的C#/.NET文档、C#图解教程
+- C++：《C++ Primer》、《Effective C++》（可能用）
+- 编译原理：《编译原理》（龙书）、Stanford的课程
+- 汇编语言：汇编语言（第4版）
+- 数据结构与算法：浙大陈越的课、《挑战程序设计竞赛》、《数据结构与算法分析》
+- CMake：CMake官方文档
+- Git、Github：自行搜索教程
+- C#与C/C++的对接：自行搜索
