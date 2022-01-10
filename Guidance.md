@@ -38,6 +38,10 @@ git push
 
 突然发现好像可以不用desktop。
 
+git push不稳定，可以下个github desktop，在里面提交很方便。
+
+
+
 ## 开发技巧
 
 ### CMake + 终端的使用
