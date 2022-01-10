@@ -18,15 +18,11 @@
 
 [(2条消息) 如何正确使用git和github__ACME_的博客-CSDN博客_git怎么用](https://blog.csdn.net/qq_18297675/article/details/79633950)
 
-去Github网站注册一个账号：[GitHub](https://github.com/)
-
-之后下载一个Github桌面版：![image-20220110144801726](C:\Users\27162\AppData\Roaming\Typora\typora-user-images\image-20220110144801726.png)
-
 [(2条消息) GitHub怎样fork别人代码到自己仓库并进行贡献_前端小狮的博客-CSDN博客_git怎么fork](https://blog.csdn.net/m0_37885651/article/details/94734499)
 
-由于科学上网的原因，一般使用Github Desktop将项目clone下来：
+去Github网站注册一个账号：[GitHub](https://github.com/)
 
-<img src="C:\Users\27162\AppData\Roaming\Typora\typora-user-images\image-20220110145753636.png" alt="image-20220110145753636" style="zoom:50%;" />
+将项目clone下来：
 
 在你想要提交时：
 
@@ -35,17 +31,16 @@ git add ..//这里写你要上传的一个文件
 git commit -m "注释"//注释里写你对提交的注释
 git checkout master
 git merge dev
+git push
 ```
-
-由于科学上网的原因，我们不能通过git直接push，要用GitHub Desktop。
-
-![image-20220110150238057](C:\Users\27162\AppData\Roaming\Typora\typora-user-images\image-20220110150238057.png)
-
-点下就可以了。
 
 之后从Pull request处向源项目提交。
 
 突然发现好像可以不用desktop。
+
+git push不稳定，可以下个github desktop，在里面提交很方便。
+
+
 
 ## 开发技巧
 
