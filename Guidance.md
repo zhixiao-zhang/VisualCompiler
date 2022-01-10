@@ -16,7 +16,34 @@
 
 [(2条消息) Git基本使用教程（一）：入门及第一次基本完整操作_jerryzhou的博客-CSDN博客_git基础教程](https://jerryzhou.blog.csdn.net/article/details/97698815?spm=1001.2101.3001.6650.1&utm_medium=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~default-1.pc_relevant_paycolumn_v2&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~default-1.pc_relevant_paycolumn_v2&utm_relevant_index=2)
 
+[(2条消息) 如何正确使用git和github__ACME_的博客-CSDN博客_git怎么用](https://blog.csdn.net/qq_18297675/article/details/79633950)
 
+去Github网站注册一个账号：[GitHub](https://github.com/)
+
+之后下载一个Github桌面版：![image-20220110144801726](C:\Users\27162\AppData\Roaming\Typora\typora-user-images\image-20220110144801726.png)
+
+[(2条消息) GitHub怎样fork别人代码到自己仓库并进行贡献_前端小狮的博客-CSDN博客_git怎么fork](https://blog.csdn.net/m0_37885651/article/details/94734499)
+
+由于科学上网的原因，一般使用Github Desktop将项目clone下来：
+
+<img src="C:\Users\27162\AppData\Roaming\Typora\typora-user-images\image-20220110145753636.png" alt="image-20220110145753636" style="zoom:50%;" />
+
+在你想要提交时：
+
+```bash
+git add ..//这里写你要上传的一个文件
+git commit -m "注释"//注释里写你对提交的注释
+git checkout master
+git merge dev
+```
+
+由于科学上网的原因，我们不能通过git直接push，要用GitHub Desktop。
+
+![image-20220110150238057](C:\Users\27162\AppData\Roaming\Typora\typora-user-images\image-20220110150238057.png)
+
+点下就可以了。
+
+之后从Pull request处向源项目提交。
 
 ## 开发技巧
 
