@@ -10,6 +10,14 @@
 
 ## Git与Github的使用
 
+下载git：[Git - Downloading Package (git-scm.com)](https://git-scm.com/download/win)
+
+安装与配置：[(2条消息) 关于Git这一篇就够了_17岁boy的博客-CSDN博客](https://blog.csdn.net/bjbz_cxy/article/details/116703787?ops_request_misc=%7B%22request%5Fid%22%3A%22163893895916780274168634%22%2C%22scm%22%3A%2220140713.130102334..%22%7D&request_id=163893895916780274168634&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-1-116703787.pc_search_mgc_flag&utm_term=git&spm=1018.2226.3001.4187)
+
+[(2条消息) Git基本使用教程（一）：入门及第一次基本完整操作_jerryzhou的博客-CSDN博客_git基础教程](https://jerryzhou.blog.csdn.net/article/details/97698815?spm=1001.2101.3001.6650.1&utm_medium=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~default-1.pc_relevant_paycolumn_v2&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~default-1.pc_relevant_paycolumn_v2&utm_relevant_index=2)
+
+
+
 ## 开发技巧
 
 ### CMake + 终端的使用
