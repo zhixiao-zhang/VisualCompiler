@@ -45,6 +45,8 @@ git merge dev
 
 之后从Pull request处向源项目提交。
 
+突然发现好像可以不用desktop。
+
 ## 开发技巧
 
 ### CMake + 终端的使用
