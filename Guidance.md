@@ -315,6 +315,12 @@ launch.json中的program指的是可执行文件的位置；preLaunchTask指的�
 
 ## 编码规范
 
+### 文件规范
+
+对于采用CMake工程的C/C++项目，统一使用Visual Studio Code，且在上传时用.gitignore将.vscode忽略，主目录下只能放置源代码，build文件夹和.vscode文件夹。
+
+对于C#工程，采用dotnet new console命令行构建项目。
+
 ### 编码格式
 
 ### 注释
