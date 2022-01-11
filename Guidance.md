@@ -4,13 +4,35 @@
 
 ### 推荐网站
 
+StcakOverflow：外国csdn，更好https://stackoverflow.com/
+
+微软官方文档：https://docs.microsoft.com/zh-cn/
+
 ### 推荐编译器、编辑器、集成开发环境
 
+推荐编译器：MinGW
+
+推荐编辑器：Visual Studio  Code
+
+推荐集成开发环境：Visual Studio
+
+### 版本控制工具
+
+Git：https://git-scm.com/
+
+Github：[GitHub](https://github.com/)
+
 ### CMake
+
+[CMake](https://cmake.org/)
 
 ## 开发平台
 
 ### Windows平台
+
+#### 添加环境变量
+
+
 
 ### Mac平台
 
@@ -214,7 +236,82 @@ CMake目录结构：项目主目录存在一个CMakeLists.txt文件
   10make
   ```
 
+### GCC/G++参数简介
+
+菜鸟教程：https://www.runoob.com/w3cnote/gcc-parameter-detail.html
+
 ### Visual Studio Code中配置文件的介绍
+
+**插件安装**：C/C++、C/C++ Extension Pack、C++ Themes、Chinese、Error Lens（错误提示）
+
+写好一个C代码后，点击右侧这个虫子图标：![image-20220111200436464](C:\Users\27162\AppData\Roaming\Typora\typora-user-images\image-20220111200436464.png)
+
+之后点击创建launch.json，会生成一个launch.json和一个task.json。
+
+launch.json中的program指的是可执行文件的位置；preLaunchTask指的是在调试之前要做什么。
+
+**注意preLaunchTask后面的参数和task.json中的label一定是要相同的，因为preLaunchTask执行的就是task.json中的内容。**
+
+如果我们的工程是这样的：![image-20220111201128717](C:\Users\27162\AppData\Roaming\Typora\typora-user-images\image-20220111201128717.png)
+
+我们就需要自己对launch.json和task.json进行修改，因为默认的这两个配置文件是针对单文件编译的。
+
+我们可以将这里的参数进行改动：
+
+<img src="C:\Users\27162\AppData\Roaming\Typora\typora-user-images\image-20220111201853579.png" alt="image-20220111201853579" style="zoom:50%;" />
+
+这里大括号里的内容改成我们要编译的源文件：
+
+```json
+"{main.cpp}",
+"{swap.cpp}",
+```
+
+**注意要把vscode生成的所有${fileDirname}换成${filespaceFolder}!**
+
+前者是顶层目录，后者是当前工作目录。
+
+如果我们要使用cmake的话，要先编写一个CMakelists.txt：
+
+![](C:\Users\27162\AppData\Roaming\Typora\typora-user-images\image-20220111211313097.png)
+
+之后要将这个文件夹配置成一个cmake工程文件夹。
+
+有两种方法：
+
+- 一种按CTRL+shift+P，输入cmake：configure配置。
+
+- 另一种是建立一个build文件夹，然后在终端进入build文件夹并输入`cmake ..`
+
+  - 第一次要输入：
+
+    ```bash
+    cmake -G "MinGW Makefiles" ..
+    ```
+
+    之后可以使用cmake ..
+
+之后会生成这样的一个文件内容：
+
+![image-20220111211337222](C:\Users\27162\AppData\Roaming\Typora\typora-user-images\image-20220111211337222.png)
+
+这时候我们就创建了一个CMake工程的文件夹。
+
+但是如果我们修改了代码想再次调试就要重新编译一下，下面我们将通过修改task.json和launch.json中的内容来让我们可以做到一键编译调试：
+
+首先我们要将launch.json里的program里的可执行文件路径改为build里的路径，再将preLaunchTask里的名字改成自己喜欢的名字：
+
+![image-20220111212059168](C:\Users\27162\AppData\Roaming\Typora\typora-user-images\image-20220111212059168.png)
+
+![image-20220111212032533](C:\Users\27162\AppData\Roaming\Typora\typora-user-images\image-20220111212032533.png)
+
+之后再将task.json改为如下内容：
+
+![image-20220111212655180](C:\Users\27162\AppData\Roaming\Typora\typora-user-images\image-20220111212655180.png)
+
+![image-20220111212801011](C:\Users\27162\AppData\Roaming\Typora\typora-user-images\image-20220111212801011.png)
+
+之后就可以F5一键调试了。
 
 ## 编码规范
 
