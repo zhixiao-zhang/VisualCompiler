@@ -291,7 +291,7 @@ launch.json中的program指的是可执行文件的位置；preLaunchTask指的�
 "{swap.cpp}",
 ```
 
-**注意要把vscode生成的所有${fileDirname}换成${filespaceFolder}!**
+**注意要把vscode生成的所有${fileDirname}换成${workspaceFolder}!**
 
 前者是顶层目录，后者是当前工作目录。
 
