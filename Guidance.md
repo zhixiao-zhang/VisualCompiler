@@ -16,6 +16,8 @@ StcakOverflow：外国csdn，更好https://stackoverflow.com/
 
 推荐集成开发环境：Visual Studio
 
+推荐终端：Windows Terminal（只是因为好看）
+
 ### 版本控制工具
 
 Git：https://git-scm.com/
@@ -48,7 +50,17 @@ Github：[GitHub](https://github.com/)
 
 之后就可以了。
 
+**CMake**
+
+和上方一个道理：
+
+<img src="https://s2.loli.net/2022/01/12/yKaDSUXrEeFZ9MJ.png" alt="image-20220112124339461" style="zoom:50%;" />
+
+之后可以再Windows Terminal里输入cmake --version查看是否安装成功。
+
 ### Mac平台
+
+下载VMware Fusion：[Fusion - 在 Mac 上运行 Windows | 适用于 Mac 的虚拟机 | VMware | CN](https://www.vmware.com/cn/products/fusion.html)
 
 ## Git与Github的使用
 
@@ -77,8 +89,6 @@ git push
 ```
 
 之后从Pull request处向源项目提交。
-
-突然发现好像可以不用desktop。
 
 git push不稳定，可以下个github desktop，在里面提交很方便。
 
