@@ -32,7 +32,21 @@ Github：[GitHub](https://github.com/)
 
 #### 添加环境变量
 
+**MinGW**
 
+下载地址：
+
+[Download MinGW-w64 - for 32 and 64 bit Windows from SourceForge.net](https://sourceforge.net/projects/mingw-w64/files/Toolchains targetting Win32/Personal Builds/mingw-builds/installer/mingw-w64-install.exe/download)
+
+下载之后找到安装路径，然后打开设置-关于-高级系统设置-环境变量
+
+![image-20220112105104104](https://s2.loli.net/2022/01/12/Oxfo3NPldebBH1r.png)
+
+点击进入后，点击添加，将安装的MinGW中的bin文件夹的路径加入到path中（新建，复制进去）
+
+<img src="https://s2.loli.net/2022/01/12/LyAbrfOTJosvq6Z.png" alt="image-20220112110627603" style="zoom:50%;" />
+
+之后就可以了。
 
 ### Mac平台
 
@@ -244,7 +258,7 @@ CMake目录结构：项目主目录存在一个CMakeLists.txt文件
 
 **插件安装**：C/C++、C/C++ Extension Pack、C++ Themes、Chinese、Error Lens（错误提示）
 
-写好一个C代码后，点击右侧这个虫子图标：![image-20220111200436464](C:\Users\27162\AppData\Roaming\Typora\typora-user-images\image-20220111200436464.png)
+写好一个C代码后，点击右侧这个虫子图标：![image-20220111200436464](https://s2.loli.net/2022/01/12/RjYnb5psw6oBDXH.png)
 
 之后点击创建launch.json，会生成一个launch.json和一个task.json。
 
@@ -252,13 +266,13 @@ launch.json中的program指的是可执行文件的位置；preLaunchTask指的�
 
 **注意preLaunchTask后面的参数和task.json中的label一定是要相同的，因为preLaunchTask执行的就是task.json中的内容。**
 
-如果我们的工程是这样的：![image-20220111201128717](C:\Users\27162\AppData\Roaming\Typora\typora-user-images\image-20220111201128717.png)
+如果我们的工程是这样的：![image-20220111201128717](https://s2.loli.net/2022/01/12/AHehmlQYnwJNV3S.png)
 
 我们就需要自己对launch.json和task.json进行修改，因为默认的这两个配置文件是针对单文件编译的。
 
 我们可以将这里的参数进行改动：
 
-<img src="C:\Users\27162\AppData\Roaming\Typora\typora-user-images\image-20220111201853579.png" alt="image-20220111201853579" style="zoom:50%;" />
+<img src="https://s2.loli.net/2022/01/12/7cPCeQnWxiVds9y.png" alt="image-20220111201853579" style="zoom:50%;" />
 
 这里大括号里的内容改成我们要编译的源文件：
 
@@ -273,7 +287,7 @@ launch.json中的program指的是可执行文件的位置；preLaunchTask指的�
 
 如果我们要使用cmake的话，要先编写一个CMakelists.txt：
 
-![](C:\Users\27162\AppData\Roaming\Typora\typora-user-images\image-20220111211313097.png)
+![](https://s2.loli.net/2022/01/12/P8XrT17x52iJseA.png)
 
 之后要将这个文件夹配置成一个cmake工程文件夹。
 
@@ -293,7 +307,7 @@ launch.json中的program指的是可执行文件的位置；preLaunchTask指的�
 
 之后会生成这样的一个文件内容：
 
-![image-20220111211337222](C:\Users\27162\AppData\Roaming\Typora\typora-user-images\image-20220111211337222.png)
+![image-20220111211337222](https://s2.loli.net/2022/01/12/MVgn47EzewtijIR.png)
 
 这时候我们就创建了一个CMake工程的文件夹。
 
@@ -301,15 +315,15 @@ launch.json中的program指的是可执行文件的位置；preLaunchTask指的�
 
 首先我们要将launch.json里的program里的可执行文件路径改为build里的路径，再将preLaunchTask里的名字改成自己喜欢的名字：
 
-![image-20220111212059168](C:\Users\27162\AppData\Roaming\Typora\typora-user-images\image-20220111212059168.png)
+![image-20220111212059168](https://s2.loli.net/2022/01/12/roX4QaqIjLFSlkm.png)
 
-![image-20220111212032533](C:\Users\27162\AppData\Roaming\Typora\typora-user-images\image-20220111212032533.png)
+![image-20220111212032533](https://s2.loli.net/2022/01/12/6A2CVtmMlgY7saU.png)
 
 之后再将task.json改为如下内容：
 
-![image-20220111212655180](C:\Users\27162\AppData\Roaming\Typora\typora-user-images\image-20220111212655180.png)
+![image-20220111212655180](https://s2.loli.net/2022/01/12/PFmBVcNpGb94tda.png)
 
-![image-20220111212801011](C:\Users\27162\AppData\Roaming\Typora\typora-user-images\image-20220111212801011.png)
+![image-20220111212801011](https://s2.loli.net/2022/01/12/yDIT7wGK18kW2Zn.png)
 
 之后就可以F5一键调试了。
 
