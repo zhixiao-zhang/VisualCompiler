@@ -10,11 +10,11 @@ StcakOverflow：外国csdn，更好https://stackoverflow.com/
 
 ### 推荐编译器、编辑器、集成开发环境
 
-推荐编译器：MinGW
+推荐编译器：MinGW64
 
 推荐编辑器：Visual Studio  Code
 
-推荐集成开发环境：Visual Studio
+推荐集成开发环境：Visual Studio、Clion
 
 推荐终端：Windows Terminal（只是因为好看）
 
@@ -61,6 +61,136 @@ Github：[GitHub](https://github.com/)
 ### Mac平台
 
 下载VMware Fusion：[Fusion - 在 Mac 上运行 Windows | 适用于 Mac 的虚拟机 | VMware | CN](https://www.vmware.com/cn/products/fusion.html)
+
+### Linux平台
+
+**本次工程编译器部分采用Linux的Ubuntu发行版编写。**
+
+#### Ubuntu安装
+
+当我们配置好虚拟机之后（互联网自行搜索教程），之后选择语言简体中文，键盘模式选择Chinese，选择最小安装模式，下面的什么软件更新都不要管（因为这时候的软件源是在Linux自己的服务器上，下载速度非常慢，换源之后再更新）。
+
+进入Linux界面后弹出的软件更新器也不要管，这时候我们还没有换源，之后从应用列表一样可以打开。
+
+清晰度可以从右上角电源键处调整。
+
+#### 换国内源
+
+进入Linux系统后，点击右上角下箭头，找到设置-关于-软件更新-下载自，选择其他站点-找到中科大的镜像下载站（http://mirrors.ustc.edu.cn/ubuntu）之后跟随引导操作即可。
+
+#### 基本配置
+
+首先我们注意到Ubuntu的商店不能使用，这是由于Ubuntu的商店已经停用了，转而变成了软件。我们需要打开命令行（Windows下是Ctrl+Alt+T、Mac下应该类似或自行查找）。
+
+首先我们要卸载原来的商店：
+
+```bash
+sudo apt autoremove --purge snapd
+```
+
+之后安装gnome-software
+
+```bash
+sudo apt install gnome-software
+```
+
+之后进行几个操作：
+
+```bash
+sudo apt-get install gcc
+sudo apt-get install cmake
+sudo apt-get install g++
+sudo apt-get install git
+```
+
+要查看是否安装成功，可以输入（gcc为例，其余同理）：
+
+```bash
+gcc --version
+```
+
+科大的镜像站下载的是gcc-9，现在的最新版本是gcc-11.2.0，不用管，我们统一用最新的。
+
+#### GCC-11.2.0下载与编译方法
+
+登录中国科学技术大学镜像站（[USTC Open Source Software Mirror](https://mirrors.ustc.edu.cn/)），文件列表找到gnu，点进去之后找到gcc，选择gcc-11.2.0，下载gcc.11.2.0.tar.gz，之后打开终端，找到下载目录（可以用cd命令，或者直接图形界面找到右键选择在终端打开），之后输入如下命令：
+
+```bash
+ sudo tar -xf gcc-10.1.0.tar.gz -C /usr/local/
+```
+
+将源代码文件解压到local文件夹，紧接着执行如下指令安装gcc所需要的包：
+
+```bash
+cd /usr/local/gcc-10.1.0
+sudo  ./contrib/download_prerequisites
+```
+
+一定要看到这里是确实把gmp等包下载成功之后才进行下一步。
+
+完成这些之后退回到local文件夹：
+
+```bash
+cd /usr/local
+```
+
+建立一个用于存放编译后代码的文件夹：
+
+```bash
+sudo mkdir gcc-build-11.2.0
+```
+
+之后进入该文件夹，输入如下指令：
+
+```bash
+sudo ../gcc-10.1.0/configure --enable-checking=release --enable-languages=c,c++ --disable-multilib
+```
+
+这时候就可以编译了：
+
+```bash
+sudo make	//如果这里提示没有安装的话就先安装再make
+#安装命令为：
+sudo apt-get install make
+```
+
+编译过程会持续数个小时（我的电脑实际用时3小时左右）。
+
+之后如果看到done一类的词就可以输入如下指令进行安装：
+
+```bash
+sudo make install
+```
+
+安装成功之后重启虚拟机，在终端输入：
+
+```bash
+gcc --version
+```
+
+就可以看到已经有11.2.0版本的gcc了。
+
+#### Ubuntu上Visual Studio Code的安装与配置：
+
+在这之前我们先将系统自带的火狐卸载，安装chrome。
+
+在火狐上搜索chrome，安装deb包之后右键选择打开方式，点击软件安装。（这一步一定要在解决商店问题后做）
+
+终端输入（在确定安装了chrome之后）：
+
+```bash
+sudo apt autoremove firefox
+```
+
+到vscode官网下载vscode的deb包
+
+![image-20220115140909627](https://s2.loli.net/2022/01/15/63zPuaCJXH7LBnR.png)
+
+下载之后安装即可，正常安装插件，按照下面vscode部分的配置方法即可。
+
+**在调试时可能会出现提示错误（找不到文件），可以参考下面这篇文章的内容，但记得把里面的参数换成你操作系统里缺的那部分！**
+
+[(2条消息) Ubuntu下Vscode调试出现[无法打开"libc-start.c"：无法读取文件...错误解决办法_Hubery彭于晏-CSDN博客_无法打开“libc-start.c”](https://blog.csdn.net/weixin_39758398/article/details/101912759?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~default-2.no_search_link&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~default-2.no_search_link&utm_relevant_index=3)
 
 ## Git与Github的使用
 
