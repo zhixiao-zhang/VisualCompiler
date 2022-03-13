@@ -11,7 +11,7 @@ extern FILE *yyin;
 %}
 
 digit [0-9]
-digits ({digit}+)(\.{digit}+)?(E[+-]?{digit}+)?
+digits [+-]?{digit}+
 delim [ \t\n]
 ws {delim}+
 letter_ [A-Za-z_]
