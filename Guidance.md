@@ -212,7 +212,7 @@ sudo apt autoremove firefox
 
 ```bash
 git add ..//这里写你要上传的一个文件
-git commit -m "注释"//注释里写你对提交的注释
+git commit -m "注释"i//注释里写你对提交的注释
 git checkout master
 git merge dev
 git push
