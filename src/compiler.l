@@ -22,11 +22,9 @@ id {letter_}({letter_}|{digit})*
 "void" {printf("VOID\n");}
 "main" {printf("ID\n");}
 "return" {printf("RETURN\n");}
-"for" {printf("FOR\n");}
 "while" {printf("WHILE\n");}
 "if" {printf("IF\n");}
 "else" {printf("ELSE\n");}
-"struct" {printf("STRUCT\n");}
 ";" {printf("SEMI\n");}
 "," {printf("COMMA\n");}
 "=" {printf("ASSIGNOP\n");}
