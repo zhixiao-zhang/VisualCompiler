@@ -5,7 +5,7 @@
 #include <stddef.h>
 
 //行数;
-extern int _yyline;
+extern int yylineno;
 //文字;
 extern char *yytext;
 //错误处理函数

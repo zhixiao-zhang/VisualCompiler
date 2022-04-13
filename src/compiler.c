@@ -72,7 +72,7 @@ void PreOrder(Ast ast, int level) {
 
 void yyerror(char *msg) {
   hasFault = 1;
-  fprintf(stderr, "Error type b at line %d, %s, before %s\n", _yyline, msg, yytext);
+  fprintf(stderr, "Error type b at line %d, %s, before %s\n", yylineno, msg, yytext);
 }
 
 void Childset(pnode node) {
