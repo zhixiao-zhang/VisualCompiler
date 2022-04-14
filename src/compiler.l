@@ -11,7 +11,7 @@ extern FILE *yyin;
 %}
 
  /*flex属性,用以记录符号所在行号*/
-%option _yylineno
+%option yylineno
 
  /*定义正则表达式*/
  /*十进制*/
