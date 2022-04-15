@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <../include/compiler.h>
+#include <compiler.tab.h>
 
 //外部变量声明，yytext和yyin分别为字符指针和文件指针
 //这两个变量在lex提供的库值被定义，因此想要使用必须使用extern
@@ -69,35 +71,35 @@ AERROR .
  {COMMENT} {}
  {EOL} {}
  /*关键字*/
-{TYPE} {return TYPE;}
-{STRUCT} {return STRUCT;}
-{RETURN} {return RETURN;}
-{IF} {return IF;}
-{ELSE} {return ELSE;}
-{WHILE} {return WHILE;}
+{TYPE} {yylval.type_pnode = newAst("TYPE", 0, yylineno); return TYPE;}
+{STRUCT} {yylval.type_pnode = newAst("STRUCT", 0, yylineno); return STRUCT;}
+{RETURN} {yylval.type_pnode = newAst("RETURN", 0, yylineno); return RETURN;}
+{IF} {yylval.type_pnode = newAst("IF", 0, yylineno); return IF;}
+{ELSE} {yylval.type_pnode = newAst("ELSE", 0, yylineno); return ELSE;}
+{WHILE} {yylval.type_pnode = newAst("WHILE", 0, yylineno); return WHILE;}
  /*数字类型表示*/
-{INT} {return INT;}
+{INT} {yylval.type_pnode = newAst("INT", 0, yylineno); return INT;}
  /*符号*/
-{SEMI} {return SEMI;}
-{COMMA} {return COMMA;}
-{ASSIGNOP} {return ASSIGNOP;}
-{PLUS} {return PLUS;}
-{MINUS} {return MINUS;}
-{STAR} {return STAR;}
-{DIV} {return DIV;}
-{AND} {return AND;}
-{GETMEMBER} {return GETMEMBER;}
-{NOT} {return NOT;}
-{LP} {return LP;}
-{RP} {return RP;}
-{LB} {return LB;}
-{RB} {return Rb;}
-{LC} {return LC;}
-{RC} {return RC;}
-{RELOP} {return RELOP;}
+{SEMI} {yylval.type_pnode = newAst("SEMI", 0, yylineno); return SEMI;}
+{COMMA} {yylval.type_pnode = newAst("COMMA", 0, yylineno); return COMMA;}
+{ASSIGNOP} {yylval.type_pnode = newAst("ASSIGNOP", 0, yylineno); return ASSIGNOP;}
+{PLUS} {yylval.type_pnode = newAst("PLUS", 0, yylineno); return PLUS;}
+{MINUS} {yylval.type_pnode = newAst("MINUS", 0, yylineno); return MINUS;}
+{STAR} {yylval.type_pnode = newAst("STAR", 0, yylineno); return STAR;}
+{DIV} {yylval.type_pnode = newAst("DIV", 0, yylineno); return DIV;}
+{AND} {yylval.type_pnode = newAst("AND", 0, yylineno); return AND;}
+{GETMEMBER} {yylval.type_pnode = newAst("GETMEMBER", 0, yylineno); return GETMEMBER;}
+{NOT} {yylval.type_pnode = newAst("NOT", 0, yylineno); return NOT;}
+{LP} {yylval.type_pnode = newAst("LP", 0, yylineno); return LP;}
+{RP} {yylval.type_pnode = newAst("RP", 0, yylineno); return RP;}
+{LB} {yylval.type_pnode = newAst("LB", 0, yylineno); return LB;}
+{RB} {yylval.type_pnode = newAst("RB", 0, yylineno); return Rb;}
+{LC} {yylval.type_pnode = newAst("LC", 0, yylineno); return LC;}
+{RC} {yylval.type_pnode = newAst("RC", 0, yylineno); return RC;}
+{RELOP} {yylval.type_pnode = newAst("RELOP", 0, yylineno); return RELOP;}
 
  /*标识符*/
-{ID} {return ID;}
+{ID} {yylval.type_pnode = newAst("ID", 0, yylineno); return ID;}
  /*错误表示*/
 {AERROR} {
   hasFault = 1;
