@@ -24,7 +24,7 @@
 %left PLUS MINUS
 %left STAR DIV
 %right NOT
-%left LP RP LB RB GETMEMEBER
+%left LP RP LB RB GETMEMBER
 
  /*伪记号*/
 %nonassoc _LOWER_THAN_ELSE
@@ -183,4 +183,161 @@ Stmt:Exp SEMI {
     $$ = newAst("Stmt", 2, $1, $2);
     nodeList[_nodeNum] = $$;
     _nodeNum++;
+    }
+    |Compst {
+    $$ = newAst("Stmt", 1, $1);
+    nodeList[_nodeNum] = $$;
+    _nodeNum++;
+    }
+    |RETURN Exp SEMI {
+    $$ = newAst("Stmt", 3, $1, $2, $3);
+    nodeList[_nodeNum] = $$;
+    _nodeNum++;
+    }
+    |IF LP Exp RP Stmt %prec LOWER_THAN_ELSE {
+    $$ = newAst("Stmt", 5, $1, $2, $3, $4, $5);
+    nodeList[_nodeNum] = $$;
+    _nodeNum++;
+    }
+    |IF LP Exp RP Stmt ELSE Stmt {
+    $$ = newAst("Stmt", 7, $1, $2, $3, $4, $5, $6, $7);
+    nodeList[_nodeNum] = $$;
+    _nodeNum++;
+    }
+    |WHILE LP Exp RP Stmt {
+    $$ = newAst("Stmt", 5, $1, $2, $3, $4, $5);
+    nodeList[_nodeNum] = $$;
+    _nodeNum++;
+    }
+    ;
+DefList:Specifire DecList SEMI {
+       $$ = newAst("DefList", 3, $1, $2, $3);
+       nodeList[_nodeNum] = $$;
+       _nodeNum++;
+       }
+       | {
+       $$ = newAst("DefList", 0, -1);
+       nodeList[_nodeNum] = $$;
+       _nodeNum++;
+       }
+       ;
+Def:Specifire DecList SEMI {
+   $$ = newAst("Def", 3, $1, $2, $3);
+   nodeList[_nodeNum] = $$;
+   _nodeNum++;
+   }
+   ;
+DecList:Dec {
+       $$ = newAst("DecList", 1, $1);
+       nodeList[_nodeNum] = $$;
+       _nodeNum++;
+       } 
+       |VarDec ASSIGNOP Exp {
+       $$ = newAst("DecList", 3, $1, $2, $3);
+       nodeList[_nodeNum] = $$;
+       _nodeNum++;
+       }
+       ;
+Dec:VarDec {
+   $$ = newAst("Dec", 1, $1);
+   nodeList[_nodeNum] = $$;
+   _nodeNum++;
+   }
+   |VarDec ASSIGNOP Exp {
+   $$ = newAst("Dec", 3, $1, $2, $3);
+   nodeList[_nodeNum] = $$;
+   _nodeNum++;
+   }
+   ;
+ /*Expression*/
+Exp:Exp ASSIGNOP Exp {
+   $$ = newAst("Exp", 3, $1, $2, $3);
+   nodeList[_nodeNum] = $$;
+   _nodeNum++;
+   }
+   |Exp AND Exp {
+   $$ = newAst("Exp", 3, $1, $2, $3);
+   nodeList[_nodeNum] = $$;
+   _nodeNum++;
+   }
+   |Exp OR Exp {
+   $$ = newAst("Exp", 3, $1, $2, $3);
+   nodeList[_nodeNum] = $$;
+   _nodeNum++;
+   }
+   |Exp RELOP Exp {
+   $$ = newAst("Exp", 3, $1, $2, $3);
+   nodeList[_nodeNum] = $$;
+   _nodeNum++;
+   }
+   |Exp PLUS Exp {
+   $$ = newAst("Exp", 3, $1, $2, $3);
+   nodeList[_nodeNum] = $$;
+   _nodeNum++;
+   }
+   |Exp MINUS Exp {
+   $$ = newAst("Exp", 3, $1, $2, $3);
+   nodeList[_nodeNum] = $$;
+   _nodeNum++;
+   }
+   |Exp STAR Exp {
+   $$ = newAst("Exp", 3, $1, $2, $3);
+   nodeList[_nodeNum] = $$;
+   _nodeNum++;
+   }
+   |Exp DIV Exp {
+   $$ = newAst("Exp", 3, $1, $2, $3);
+   nodeList[_nodeNum] = $$;
+   _nodeNum++;
+   }
+   |LP Exp RP {
+   $$ = newAst("Exp", 3, $1, $2, $3);
+   nodeList[_nodeNum] = $$;
+   _nodeNum++;
+   }
+   |MINUS Exp {
+   $$ = newAst("Exp", 2, $1, $2);
+   nodeList[_nodeNum] = $$;
+   _nodeNum++;
+   }
+   |NOT Exp {
+   $$ = newAst("Exp", 2, $1, $2);
+   nodeList[_nodeNum] = $$;
+   _nodeNum++;
+   }
+   |ID LP Args RP {
+   $$ = newAst("Exp", 4, $1, $2, $3, $4);
+   nodeList[_nodeNum] = $$;
+   _nodeNum++;
+   }
+   |ID LP RP {
+   $$ = newAst("Exp", 3, $1, $2, $3);
+   nodeList[_nodeNum] = $$;
+   _nodeNum++;
+   }
+   |Exp LB Exp RB {
+   $$ = newAst("Exp", 4, $1, $2, $3, $4);
+   nodeList[_nodeNum] = $$;
+   _nodeNum++;
+   }
+   |Exp GETMEMBER ID {
+   $$ = newAst("Exp", 3, $1, $2, $3);
+   nodeList[_nodeNum] = $$;
+   _nodeNum++;
+   }
+   |ID {
+   $$ = newAst("Exp", 1, $1);
+   nodeList[_nodeNum] = $$;
+   _nodeNum++;
+   }
+   |INT {
+   $$ = newAst("Exp", 1, $1);
+   nodeList[_nodeNum] = $$;
+   _nodeNum++;
+   }
+   ;
+Args:Exp COMMA Args {
+    $$ = newAst("Args", 3, $1, $2, $3);
+   nodeList[_nodeNum] = $$;
+   _nodeNum++;
     }
