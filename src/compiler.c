@@ -1,5 +1,6 @@
 #include "../include/compiler.h"
 
+/*test*/
 int i;
 
 /*
