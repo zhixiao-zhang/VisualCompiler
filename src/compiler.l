@@ -1,14 +1,11 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <../include/compiler.h>
-#include <compiler.tab.h>
+#include "../include/compiler.h"
+#include "compiler.tab.h"
 
 //外部变量声明，yytext和yyin分别为字符指针和文件指针
 //这两个变量在lex提供的库值被定义，因此想要使用必须使用extern
-extern char *yytext;
-extern FILE *yyin;
 
 %}
 
@@ -17,12 +14,12 @@ extern FILE *yyin;
 
  /*定义正则表达式*/
  /*十进制*/
-DIGIT [0-9]
-DIGITS ({digit}+)(\.{digit}+)?(E[+-]?{digit}+)?
-
+DIGIT [1-9]
+DIGITS [0-9]
+INT 0|({DIGIT}[DIGITS]*)
  /*标识符*/
 LETTER_ [A-Za-z_]
-ID {LETTER_}({LETTER_}|{DIGIT})*
+ID {LETTER_}({LETTER_}|{DIGITS})*
 
  /*关键字*/
 STRUCT struct
@@ -67,9 +64,9 @@ AERROR .
  /*第三部分 操作*/
 %%
  /*跳过空白和注释*/
- {SPACE} {}
- {COMMENT} {}
- {EOL} {}
+{SPACE} {}
+{COMMENT} {}
+{EOL} {}
  /*关键字*/
 {TYPE} {yylval.type_pnode = newAst("TYPE", 0, yylineno); return TYPE;}
 {STRUCT} {yylval.type_pnode = newAst("STRUCT", 0, yylineno); return STRUCT;}
@@ -93,7 +90,7 @@ AERROR .
 {LP} {yylval.type_pnode = newAst("LP", 0, yylineno); return LP;}
 {RP} {yylval.type_pnode = newAst("RP", 0, yylineno); return RP;}
 {LB} {yylval.type_pnode = newAst("LB", 0, yylineno); return LB;}
-{RB} {yylval.type_pnode = newAst("RB", 0, yylineno); return Rb;}
+{RB} {yylval.type_pnode = newAst("RB", 0, yylineno); return RB;}
 {LC} {yylval.type_pnode = newAst("LC", 0, yylineno); return LC;}
 {RC} {yylval.type_pnode = newAst("RC", 0, yylineno); return RC;}
 {RELOP} {yylval.type_pnode = newAst("RELOP", 0, yylineno); return RELOP;}
@@ -103,7 +100,7 @@ AERROR .
  /*错误表示*/
 {AERROR} {
   hasFault = 1;
-  printf("Error type A at line %d: Mystirious charachter '%s'\n", _yylineno, yytext);
+  printf("Error type A at line %d: Mystirious charachter '%s'\n", yylineno, yytext);
 }
 %%
 
