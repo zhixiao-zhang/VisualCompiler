@@ -1,34 +1,50 @@
-# zzxdyf1314-A-Visual-Tiny-Compiler
+# VisualCompiler
 
-## 概述
+- [Overview](#Overview)
+- [Environment](#Environment)
+- [Build](#Build)
+- [License](#License)
 
-这是四川大学2021级软件学院本科生的院级大创项目，题为大一教学视角下的可视化编译系统。
+## Overview
 
-项目组成员共三人：
+This is an undergraduate project of the School of Software of Sichuan University, Class of 2021, entitled Visual Compiler System in the Perspective of First-Year Teaching.
+The project team consists of three members.
 
-- 负责人：ZZX
-- 成员：GYJ、YC
+- Leader: Zhixiao Zhang
+- Members: Yijia Guo, Chen Yang
 
-## 项目简介
+### Introduction
 
-本项目欲用C++、C#实现一个可视化的C-（C语言子集）编译器，展示高级语言原程序的分步编译过程。通过展示编译过程中的词法分析、语法分析、语义分析、中间代码生成、优化、目标代码生成，以及用链接器生成可执行文件的过程，帮助本专业初学者初步了解高级语言源程序的编译过程，旨在减少大一学生在接触编程时由于缺乏计算机底层知识而产生的困惑。项目成果可作为大一本科生在C语言或计导实验课上学习了解编译系统的工具。  
+This project aims to implement a visual C Minus compiler in C/C++ and C# to show the step-by-step compilation process from source to execute. By showing the compilation process, it helps the cs beginners to have a basic understanding of the compiler. If all else fails, it can always reduce the confusion of freshmen due to the lack of underlying knowledge. This project can be used as a lab's tool for freshmen to learn about compiler  on Introdution to Computer System.
 
-## 项目具体实施计划
+### Specific implementation plan for the project
 
-- 各组员通过书籍、视频等学习资料学习完成此项目所需的知识；
-- 借助Git、Github版本控制工具和CMake语法，Visual Studio Code + GCC + C++，以及如Flex、Bison等工具完成语法分析、词法分析等一系列功能；
-- 编译器由C++编写完成后将其各部分编译成DLL动态链接库供C#在开发过程中调用；
-- 利用Visual Studio中的相应功能和WPF、C#语言编写开发图形化界面；
-- 将从GNU网站下载的GCC源代码编译，调用其中的汇编器、链接器接口于软件中，完成最终结果；
+- Lexical Analysis: Using the GNU Flex and the doc given by instructor.
 
-- 项目中的文件尽量贴近软件工程标准，使用严格一致的代码规范及注释提示。
+- Syntax Analysis: Using the GNU Bison and the Ast coded by ourselves.
+- Semantic analysis: ongoing
+- CodeGenerate: Translate the source into x86_64 intel assembly.
+- Linker: No decision
+- Visual: Compiling compiler parts into DLL dynamic link libraries for C# to call during development. Developing the visual using C#, WPF, Visual Studio on Windows.
 
-## 项目时间规划
+## Environment
 
-- 2022.1月-2022.2月底 组内讨论，确定具体实施计划。各组员根据分工以及已有的知识进行学习，如：学习编译原理，数据结构，WPF，C#、C++，CMake、软件工程基本知识等。
+- Ubuntu 20.04.3 Desktop
+- Windows terminal with ssh to the VMware
+- GNU GCC 9.4.0
+- GNU Bison 3.5.1
+- GNU FLex 2.6.4
+- GNU Make 4.2.1
+- C (Actually I don't know my specific C version lol.)
 
-- 2022.3月初-2022.5月利用Flex、Bison完成词法分析、语法分析、语义分析。
+## Build
 
-- 2022.5月-2022.10月初 中间代码生成器、机器无关代码优化器、代码生成器、机器相关代码优化器。
+```powershell
+cd ~
+git clone https://github.com/zzxdyf1314/VisualCompiler
+cd VisualCompiler && make clean && make
+```
 
-- 2022.10月初-2022.11月底 完成图形化界面、与GCC中的预处理器、汇编器、链接器集成，实现软件的全部功能。完成软件界面渲染，准备结题。
+## License
+
+[MIT](./LICENSE)
