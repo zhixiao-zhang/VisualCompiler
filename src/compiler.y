@@ -1,22 +1,20 @@
 %{
 #include <unistd.h>
 #include <stdio.h>
-#include <../include/compiler.h>
+#include "../include/compiler.h"
 %}
-
-%union {
-  pnode type_pnode;
-  double d;
+%union{
+pnode type_pnode;
+double d;
 }
-
- /*声明记号的值*/
+/*声明记号的值*/
 %token <type_pnode> INT
 %token <type_pnode> TYPE STRUCT RETURN IF ELSE WHILE ID COMMENT SPACE SEMI COMMA ASSIGNOP PLUS
-%token <type_pnode> MINUS STAR DIV AND OR GETMEMEBER NOT LP RP LB RB LC RC AERROR RELOP EOL
-%token <type_pnode> Program ExtDefList ExtDef ExtDecList Specifire StructSpecifire
-%token <type_pnode> OptTag Tag VarDec FuncDeclare VarList ParamDeclare Compst StmtList Stmt DefList Defition DecList Dec Exp Args
+%token <type_pnode> MINUS STAR DIV AND OR GETMEMBER NOT LP RP LB RB LC RC AERROR RELOP EOL
+%type <type_pnode> Program ExtDefList ExtDef ExtDecList Specifire StructSpecifire
+%type <type_pnode> OptTag Tag VarDec FunDec VarList ParamDec Compst StmtList Stmt DefList Def DecList Dec Exp Args
 
- /*规定优先级*/
+/*规定优先级*/
 %right ASSIGNOP
 %left OR
 %left AND
@@ -25,74 +23,69 @@
 %left STAR DIV
 %right NOT
 %left LP RP LB RB GETMEMBER
-
- /*伪记号*/
-%nonassoc _LOWER_THAN_ELSE
-
+%nonassoc LOWER_THAN_ELSE
 %nonassoc ELSE
-
- /*产生式*/
+/*产生式*/
 %%
- /*高级定义*/
 Program:ExtDefList {
-       $$ = newAst("Program", 1, $1);
-       nodeList[_nodeNum] = $$;
+       $$=newAst("Program",1,$1);
+       nodeList[_nodeNum]=$$;
        _nodeNum++;
        }
        ;
 ExtDefList:ExtDef ExtDefList {
-          $$ = newAst("ExtDefList", 2, $1, $2);
-          nodeList[_nodeNum] = $$;
+          $$=newAst("ExtDefList",2,$1,$2);
+          nodeList[_nodeNum]=$$;
           _nodeNum++;
           } 
           | {
-          $$ = newAst("ExtDefList", 0, -1);
+          $$=newAst("ExtDefList",0,-1);
           nodeList[_nodeNum] = $$;
           _nodeNum++;
           }
           ;
 ExtDef:Specifire ExtDecList SEMI {
-      $$ = newAst("ExtDef", 3, $1, $2, $3);
-      nodeList[_nodeNum] = $$;
+      $$=newAst("ExtDef",3,$1,$2,$3);
+      nodeList[_nodeNum]=$$;
       _nodeNum++;
       }
-      |Specifire SEMI {
-      $$ = newAst("ExtDef", 2, $1, $2);
-      nodeList[_nodeNum] = $$;
-      _nodeNum++;
-      }
-      |Specifire FuncDeclare Compst {
-      $$ = newAst("ExtDef", 3, $1, $2, $3);
-      nodeList[_nodeNum] = $$;
-      _nodeNum++;
-      }
-      ;
+    |Specifire SEMI {
+    $$=newAst("ExtDef",2,$1,$2);
+    nodeList[_nodeNum]=$$;
+    _nodeNum++;
+    }
+    |Specifire FunDec Compst {
+    $$=newAst("ExtDef",3,$1,$2,$3);
+    nodeList[_nodeNum]=$$;
+    _nodeNum++;
+    }
+    ;
 ExtDecList:VarDec {
           $$ = newAst("ExtDecList", 1, $1);
           nodeList[_nodeNum] = $$;
           _nodeNum++;
           }
-          |VarDec COMMA ExtDecList {
-          $$ = newAst("ExtDecList", 3, $1, $2, $3);
-          nodeList[_nodeNum] = $$;
-          _nodeNum++;
-          }
+    |VarDec COMMA ExtDecList {
+    $$ = newAst("ExtDecList", 3, $1, $2, $3);
+    nodeList[_nodeNum] = $$;
+    _nodeNum++;
+    }
           ;
 
- /*说明符*/
+/*说明符*/
 Specifire:TYPE {
          $$ = newAst("Specifire", 1, $1);
          nodeList[_nodeNum] = $$;
          _nodeNum++;
          }
-         | StructSpecifire {
-         $$ = newAst("StructSpecifire", 1, $1);
-         nodeList[_nodeNum] = $$;
-         _nodeNum++;
-         }
-         ;
+    | StructSpecifire {
+    $$ = newAst("StructSpecifire", 1, $1);
+    nodeList[_nodeNum] = $$;
+    _nodeNum++;
+    }
+    ;
 StructSpecifire:STRUCT OptTag LC DefList RC {
-               $$ = newAst("StructSpecifire", 5, $1, $2, $3, $4 , $5);
+               $$ = newAst("StructSpecifire", 5, $1, $2, $3, $4, $5);
                nodeList[_nodeNum] = $$;
                _nodeNum++;
                }
@@ -120,48 +113,47 @@ Tag:ID {
    }
    ;
 
- /*声明符*/
+/*声明符*/
 VarDec:ID {
       $$ = newAst("VarDec", 1, $1);
       nodeList[_nodeNum] = $$;
       _nodeNum++;
       }
-      |VarDec LB INT RB {
-      $$ = newAst("VarDec", 4, $1, $2, $3, $4);
+      |VarDec LB INT RB {$$ = newAst("VarDec", 4, $1, $2, $3, $4);
       nodeList[_nodeNum] = $$;
       _nodeNum++;
       }
       ;
-FuncDeclare:ID LP VarList RP {
-           $$ = newAst("FuncDeclare", 4, $1, $2, $3, $4);
-           nodeList[_nodeNum] = $$;
-           _nodeNum++;
-           }
-           |ID LP RP {
-           $$ = newAst("FuncDeclare", 3, $1, $2, $3);
+FunDec:ID LP VarList RP {
+      $$ = newAst("FunDec", 4, $1, $2, $3, $4);
+      nodeList[_nodeNum] = $$;
+      _nodeNum++;
+      }
+      |ID LP RP {
+           $$ = newAst("FunDec", 3, $1, $2, $3);
            nodeList[_nodeNum] = $$;
            _nodeNum++;
            }
            ;
-VarList:ParamDeclare COMMA VarList {
-       $$ = newAst("FuncDeclare", 3, $1, $2, $3);
+VarList:ParamDec COMMA VarList {
+       $$ = newAst("VarList", 3, $1, $2, $3);
        nodeList[_nodeNum] = $$;
        _nodeNum++;
        }
-       |ParamDeclare {
+       |ParamDec {
        $$ = newAst("VarList", 1, $1);
        nodeList[_nodeNum] = $$;
        _nodeNum++;
        }
        ;
-ParamDeclare:Specifire VarDec {
-            $$ = newAst("ParamDeclare", 2, $1, $2);
-            nodeList[_nodeNum] = $$;
-            _nodeNum++;
-            }
-            ;
+ParamDec:Specifire VarDec {
+        $$ = newAst("ParamDec", 2, $1, $2);
+        nodeList[_nodeNum] = $$;
+        _nodeNum++;
+        }
+        ;
 
- /*声明*/
+/*声明*/
 Compst:LC DefList StmtList RC {
       $$ = newAst("Compst", 4, $1, $2, $3, $4);
       nodeList[_nodeNum] = $$;
@@ -210,8 +202,8 @@ Stmt:Exp SEMI {
     _nodeNum++;
     }
     ;
-DefList:Specifire DecList SEMI {
-       $$ = newAst("DefList", 3, $1, $2, $3);
+DefList:Def DefList {
+       $$ = newAst("DefList", 2, $1, $2);
        nodeList[_nodeNum] = $$;
        _nodeNum++;
        }
@@ -232,7 +224,7 @@ DecList:Dec {
        nodeList[_nodeNum] = $$;
        _nodeNum++;
        } 
-       |VarDec ASSIGNOP Exp {
+       |Dec COMMA DecList {
        $$ = newAst("DecList", 3, $1, $2, $3);
        nodeList[_nodeNum] = $$;
        _nodeNum++;
@@ -338,7 +330,13 @@ Exp:Exp ASSIGNOP Exp {
    ;
 Args:Exp COMMA Args {
     $$ = newAst("Args", 3, $1, $2, $3);
-   nodeList[_nodeNum] = $$;
-   _nodeNum++;
+    nodeList[_nodeNum] = $$;
+    _nodeNum++;
     }
+    |Exp {
+    $$=newAst("Args", 1, $1);
+    nodeList[_nodeNum] = $$;
+    _nodeNum++;
+    }
+    ;
 %%

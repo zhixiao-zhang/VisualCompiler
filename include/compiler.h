@@ -33,7 +33,7 @@ int _nodeNum;
 
 //存放节点
 pnode nodeList[10000];
-int nodeChild[10000];
+int nodeIsChild[10000];
 
 //设置状态
 void Childset(pnode node);

@@ -26,6 +26,7 @@ Ast newAst(char *name, int number, ...) {
     //第一个孩子节点;
     tmp = va_arg(list, pnode);
     Childset(tmp);
+    father->fchild = tmp;
     //父亲节点的行号为第一个孩子节点的行号;
     father->line = tmp->line;
 
@@ -43,7 +44,7 @@ Ast newAst(char *name, int number, ...) {
       tmpstr = (char *)malloc(sizeof(char) * 40);
       strcpy(tmpstr, yytext);
       father->id_type = tmpstr;
-    } else if (!strcpy(name, "INT")) {
+    } else if (!strcmp(name, "INT")) {
       father->interval = atoi(yytext);
     }
   }
@@ -80,7 +81,7 @@ void Childset(pnode node) {
   int i;
   for (i = 0; i < _nodeNum; i++) {
     if (nodeList[i] == node) {
-      nodeChild[i] = 1;
+      nodeIsChild[i] = 1;
     }
   }
 }
@@ -94,13 +95,13 @@ int main(int argc, char *argv[]) {
   }
   for (i = 1; i < argc; i++) { //可能存在的多文件;
     _nodeNum = 0;
-    memset(nodeList, 0, sizeof(pnode) * 10000);
-    memset(nodeChild, 0, sizeof(int) * 10000);
+    memset(nodeList, 0, sizeof(pnode) * 5000);
+    memset(nodeIsChild, 0, sizeof(int) * 5000);
     hasFault = 0;
 
-    FILE *f  = fopen(argv[1], "r");
+    FILE *f  = fopen(argv[i], "r");
     if (!f) {
-      perror(argv[1]);
+      perror(argv[i]);
       return 1;
     }
     yyrestart(f);
@@ -112,9 +113,10 @@ int main(int argc, char *argv[]) {
     }
     
     for (j = 0; j < _nodeNum; j++) {
-      if (nodeChild[j] != 1) {
+      if (nodeIsChild[j] != 1) {
         PreOrder(nodeList[j], 0);
       }
     }
   }
+  return 0;
 }
