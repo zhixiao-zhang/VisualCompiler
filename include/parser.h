@@ -15,11 +15,15 @@ void yyerror(char *msg);
 typedef struct parserNode {
   int line; /*记录该节点在语法树中的行号*/
   char *_tokenName; /*flex返回的token的名称*/
-  struct parserNode *fchild, *next; /*指向当前节点的指针和指向下一个兄弟节点的指针*/
-  union  {
-    char *id_type; /*ID内容*/
-    int interval; /*INT的值*/
-  };
+  int tag;   //1.变量 2.函数 3.常数 4.数组 5.结构体
+  struct parserNode *cld[10];    //使用数组表示孩子结点
+  int ncld;
+  //语义值
+  char *content;
+  //数据类型
+  char *type;
+  //变量的值
+  float value;
 } *Ast, *pnode;
 
 //创建新的节点

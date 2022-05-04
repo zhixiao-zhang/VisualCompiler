@@ -1,14 +1,14 @@
 %{
 #include <unistd.h>
 #include <stdio.h>
-#include "../include/compiler.h"
+#include "../include/semantic.h"
 %}
 %union{
 pnode type_pnode;
 double d;
 }
 /*声明记号的值*/
-%token <type_pnode> INT
+%token <type_pnode> INT FLOAT
 %token <type_pnode> TYPE STRUCT RETURN IF ELSE WHILE ID COMMENT SPACE SEMI COMMA ASSIGNOP PLUS
 %token <type_pnode> MINUS STAR DIV AND OR GETMEMBER NOT LP RP LB RB LC RC AERROR RELOP EOL
 %type <type_pnode> Program ExtDefList ExtDef ExtDecList Specifire StructSpecifire
@@ -29,314 +29,291 @@ double d;
 %%
 Program:ExtDefList {
        $$=newAst("Program",1,$1);
-       nodeList[_nodeNum]=$$;
-       _nodeNum++;
        }
        ;
 ExtDefList:ExtDef ExtDefList {
           $$=newAst("ExtDefList",2,$1,$2);
-          nodeList[_nodeNum]=$$;
-          _nodeNum++;
           } 
           | {
           $$=newAst("ExtDefList",0,-1);
-          nodeList[_nodeNum] = $$;
-          _nodeNum++;
           }
           ;
 ExtDef:Specifire ExtDecList SEMI {
       $$=newAst("ExtDef",3,$1,$2,$3);
-      nodeList[_nodeNum]=$$;
-      _nodeNum++;
+      if (ifvardef($2)) {
+        printf("Error type 7 at line %d:Redefined Variable '%s'\n", yylineno, $2->content);
+        } else {
+          newvar(2, $1, $2);
+        }
       }
     |Specifire SEMI {
     $$=newAst("ExtDef",2,$1,$2);
-    nodeList[_nodeNum]=$$;
-    _nodeNum++;
     }
     |Specifire FunDec Compst {
     $$=newAst("ExtDef",3,$1,$2,$3);
-    nodeList[_nodeNum]=$$;
-    _nodeNum++;
+    newfunc(1, $1);
     }
     ;
 ExtDecList:VarDec {
           $$ = newAst("ExtDecList", 1, $1);
-          nodeList[_nodeNum] = $$;
-          _nodeNum++;
           }
     |VarDec COMMA ExtDecList {
     $$ = newAst("ExtDecList", 3, $1, $2, $3);
-    nodeList[_nodeNum] = $$;
-    _nodeNum++;
     }
           ;
 
 /*说明符*/
 Specifire:TYPE {
          $$ = newAst("Specifire", 1, $1);
-         nodeList[_nodeNum] = $$;
-         _nodeNum++;
          }
     | StructSpecifire {
     $$ = newAst("StructSpecifire", 1, $1);
-    nodeList[_nodeNum] = $$;
-    _nodeNum++;
     }
     ;
 StructSpecifire:STRUCT OptTag LC DefList RC {
+               inStruc = 0;
                $$ = newAst("StructSpecifire", 5, $1, $2, $3, $4, $5);
-               nodeList[_nodeNum] = $$;
-               _nodeNum++;
+               if (findstruc($2)) {
+                  printf("Error type 11 at line %d:Dulpicated name '%s'\n", yylineno, $2->content);
+                } else {
+                  newstruc(1, $2);
+                }
                }
                |STRUCT Tag {
                $$ = newAst("StructSpecifire", 2, $1, $2);
-               nodeList[_nodeNum] = $$;
-               _nodeNum++;
                }
                ;
 OptTag:ID {
       $$ = newAst("OptTag", 1, $1);
-      nodeList[_nodeNum] = $$;
-      _nodeNum++;
       }
       | {
       $$ = newAst("OptTag", 0, -1);
-      nodeList[_nodeNum] = $$;
-      _nodeNum++;
       }
       ;
 Tag:ID {
    $$ = newAst("Tag", 1, $1);
-   nodeList[_nodeNum] = $$;
-   _nodeNum++;
    }
    ;
 
 /*声明符*/
 VarDec:ID {
       $$ = newAst("VarDec", 1, $1);
-      nodeList[_nodeNum] = $$;
-      _nodeNum++;
+      $$->tag = 1;
       }
-      |VarDec LB INT RB {$$ = newAst("VarDec", 4, $1, $2, $3, $4);
-      nodeList[_nodeNum] = $$;
-      _nodeNum++;
+      |VarDec LB INT RB {
+      $$ = newAst("VarDec", 4, $1, $2, $3, $4);
+      $$->content = $1->content;
+      $$->tag = 4;
       }
       ;
 FunDec:ID LP VarList RP {
       $$ = newAst("FunDec", 4, $1, $2, $3, $4);
-      nodeList[_nodeNum] = $$;
-      _nodeNum++;
+      $$->content = $1->content;
+      if (findfunc($1)) {
+          printf("Error type 8 line %d:Redefined Function '%s'\n ", yylineno, $1->content);
+        } else {
+          newfunc(2, $1, $3);
+        }
       }
       |ID LP RP {
            $$ = newAst("FunDec", 3, $1, $2, $3);
-           nodeList[_nodeNum] = $$;
-           _nodeNum++;
+           $$->content = $1->content;
+           if (findfunc($1)) {
+              printf("Error type 8 line %d:Redefined Function '%s'\n ", yylineno, $1->content);
+              } else {
+                newfunc(2, $1, $3);
+              }
            }
            ;
 VarList:ParamDec COMMA VarList {
        $$ = newAst("VarList", 3, $1, $2, $3);
-       nodeList[_nodeNum] = $$;
-       _nodeNum++;
        }
        |ParamDec {
        $$ = newAst("VarList", 1, $1);
-       nodeList[_nodeNum] = $$;
-       _nodeNum++;
        }
        ;
 ParamDec:Specifire VarDec {
         $$ = newAst("ParamDec", 2, $1, $2);
-        nodeList[_nodeNum] = $$;
-        _nodeNum++;
+        if (ifvardef($2) || findarray($2)) {
+            printf("Error type 7 at line %d:Redefined Variable '%s'\n", yylineno, $2->content);
+          } else if($2->tag == 4) {
+            newarray(2, $1, $2);
+          } else {
+            newvar(2, $1, $2);
+          }
         }
         ;
 
 /*声明*/
 Compst:LC DefList StmtList RC {
       $$ = newAst("Compst", 4, $1, $2, $3, $4);
-      nodeList[_nodeNum] = $$;
-      _nodeNum++;
       }
       ;
 StmtList:Stmt StmtList {
         $$ = newAst("StmtList", 2, $1, $2);
-        nodeList[_nodeNum] = $$;
-        _nodeNum++;
         }
         | {
         $$ = newAst("StmtList", 0, -1);
-        nodeList[_nodeNum] = $$;
-        _nodeNum++;
         }
         ;
 Stmt:Exp SEMI {
     $$ = newAst("Stmt", 2, $1, $2);
-    nodeList[_nodeNum] = $$;
-    _nodeNum++;
     }
     |Compst {
     $$ = newAst("Stmt", 1, $1);
-    nodeList[_nodeNum] = $$;
-    _nodeNum++;
     }
     |RETURN Exp SEMI {
     $$ = newAst("Stmt", 3, $1, $2, $3);
-    nodeList[_nodeNum] = $$;
-    _nodeNum++;
+    getrtype($2);
     }
     |IF LP Exp RP Stmt %prec LOWER_THAN_ELSE {
     $$ = newAst("Stmt", 5, $1, $2, $3, $4, $5);
-    nodeList[_nodeNum] = $$;
-    _nodeNum++;
     }
     |IF LP Exp RP Stmt ELSE Stmt {
     $$ = newAst("Stmt", 7, $1, $2, $3, $4, $5, $6, $7);
-    nodeList[_nodeNum] = $$;
-    _nodeNum++;
     }
     |WHILE LP Exp RP Stmt {
     $$ = newAst("Stmt", 5, $1, $2, $3, $4, $5);
-    nodeList[_nodeNum] = $$;
-    _nodeNum++;
     }
     ;
 DefList:Def DefList {
        $$ = newAst("DefList", 2, $1, $2);
-       nodeList[_nodeNum] = $$;
-       _nodeNum++;
        }
        | {
        $$ = newAst("DefList", 0, -1);
-       nodeList[_nodeNum] = $$;
-       _nodeNum++;
        }
        ;
 Def:Specifire DecList SEMI {
    $$ = newAst("Def", 3, $1, $2, $3);
-   nodeList[_nodeNum] = $$;
-   _nodeNum++;
+   if (ifvardef($2) || findarray($2)) {
+      printf("Error type 7 at line %d:Redefined Variable '%s'\n", yylineno, $2->content);
+     } else if($2->tag == 4) {
+        newarray(2, $1, $2);
+     } else {
+        newvar(2, $1, $2);
+     }
    }
    ;
 DecList:Dec {
        $$ = newAst("DecList", 1, $1);
-       nodeList[_nodeNum] = $$;
-       _nodeNum++;
        } 
        |Dec COMMA DecList {
        $$ = newAst("DecList", 3, $1, $2, $3);
-       nodeList[_nodeNum] = $$;
-       _nodeNum++;
+       $$->tag = $3->tag;
        }
        ;
 Dec:VarDec {
    $$ = newAst("Dec", 1, $1);
-   nodeList[_nodeNum] = $$;
-   _nodeNum++;
    }
    |VarDec ASSIGNOP Exp {
    $$ = newAst("Dec", 3, $1, $2, $3);
-   nodeList[_nodeNum] = $$;
-   _nodeNum++;
+   $$->content = $1->content;
    }
    ;
  /*Expression*/
 Exp:Exp ASSIGNOP Exp {
    $$ = newAst("Exp", 3, $1, $2, $3);
-   nodeList[_nodeNum] = $$;
-   _nodeNum++;
+   if ($1->type == NULL || $3->type == NULL) {
+      return;
+    }
+   if (strcmp($1->type, $3->type)) {
+      printf("Error type 2 at line %d:Type mismatched for for assignment.\n ", yylineno);
+    }
+   if (!checkleft($1)) {
+      printf("Error type 3 at line %d:The left-hand side of an assignment must be a Variable.\n ", yylineno);
+    }
    }
    |Exp AND Exp {
    $$ = newAst("Exp", 3, $1, $2, $3);
-   nodeList[_nodeNum] = $$;
-   _nodeNum++;
    }
    |Exp OR Exp {
    $$ = newAst("Exp", 3, $1, $2, $3);
-   nodeList[_nodeNum] = $$;
-   _nodeNum++;
    }
    |Exp RELOP Exp {
    $$ = newAst("Exp", 3, $1, $2, $3);
-   nodeList[_nodeNum] = $$;
-   _nodeNum++;
    }
    |Exp PLUS Exp {
    $$ = newAst("Exp", 3, $1, $2, $3);
-   nodeList[_nodeNum] = $$;
-   _nodeNum++;
+   if (strcmp($1->type, $3->type)) {
+      printf("Error type 6 at line %d:Type mismatched for for operands.\n ", yylineno);
+    }
    }
    |Exp MINUS Exp {
    $$ = newAst("Exp", 3, $1, $2, $3);
-   nodeList[_nodeNum] = $$;
-   _nodeNum++;
+   if (strcmp($1->type, $3->type)) {
+      printf("Error type 6 at line %d:Type mismatched for for operands.\n ", yylineno);
+    }
    }
    |Exp STAR Exp {
    $$ = newAst("Exp", 3, $1, $2, $3);
-   nodeList[_nodeNum] = $$;
-   _nodeNum++;
+   if (strcmp($1->type, $3->type)) {
+      printf("Error type 6 at line %d:Type mismatched for for operands.\n ", yylineno);
+    }
    }
    |Exp DIV Exp {
    $$ = newAst("Exp", 3, $1, $2, $3);
-   nodeList[_nodeNum] = $$;
-   _nodeNum++;
+   if (strcmp($1->type, $3->type)) {
+      printf("Error type 6 at line %d:Type mismatched for for operands.\n ", yylineno);
+    }
    }
    |LP Exp RP {
    $$ = newAst("Exp", 3, $1, $2, $3);
-   nodeList[_nodeNum] = $$;
-   _nodeNum++;
    }
    |MINUS Exp {
    $$ = newAst("Exp", 2, $1, $2);
-   nodeList[_nodeNum] = $$;
-   _nodeNum++;
    }
    |NOT Exp {
    $$ = newAst("Exp", 2, $1, $2);
-   nodeList[_nodeNum] = $$;
-   _nodeNum++;
    }
    |ID LP Args RP {
    $$ = newAst("Exp", 4, $1, $2, $3, $4);
-   nodeList[_nodeNum] = $$;
-   _nodeNum++;
+   if(!findfunc($1) && (ifvardef($1)||findarray($1))) {
+			printf("Error type 4 at Line %d:'%s' is not a function.\n ",yylineno,$1->content);
+		} else if(!findfunc($1)) {
+			  printf("Error type 5 at Line %d:Undefined function %s\n ",yylineno,$1->content);
+    } else if(checkrtype($1,$3)){
+			  printf("Error type 13 at Line %d:Function parameter type error.\n ",yylineno);
+		} else{}
    }
    |ID LP RP {
    $$ = newAst("Exp", 3, $1, $2, $3);
-   nodeList[_nodeNum] = $$;
-   _nodeNum++;
+   if(!findfunc($1) && (ifvardef($1)||findarray($1))) {
+			printf("Error type 4 at Line %d:'%s' is not a function.\n ",yylineno,$1->content);
+		} else if(!findfunc($1)) {
+			  printf("Error type 5 at Line %d:Undefined function %s\n ",yylineno,$1->content);
+		} else{}
    }
    |Exp LB Exp RB {
    $$ = newAst("Exp", 4, $1, $2, $3, $4);
-   nodeList[_nodeNum] = $$;
-   _nodeNum++;
    }
    |Exp GETMEMBER ID {
    $$ = newAst("Exp", 3, $1, $2, $3);
-   nodeList[_nodeNum] = $$;
-   _nodeNum++;
    }
    |ID {
    $$ = newAst("Exp", 1, $1);
-   nodeList[_nodeNum] = $$;
-   _nodeNum++;
+   if (!ifvardef($1) && !findarray($1)) {
+      printf("Error type 1 at line %d:Undefined Variable %s\n ", yylineno, $1->content);
+    } else {
+      $$->type = typevar($1);
+    }
    }
    |INT {
    $$ = newAst("Exp", 1, $1);
-   nodeList[_nodeNum] = $$;
-   _nodeNum++;
+   $$->tag = 3;
+   $$->type = "int";
+   }
+   | FLOAT {
+   $$ = newAst("Exp", 1, $1);
+   $$->tag = 3;
+   $$->type = "float";
+   $$->value = $1->value;
    }
    ;
 Args:Exp COMMA Args {
     $$ = newAst("Args", 3, $1, $2, $3);
-    nodeList[_nodeNum] = $$;
-    _nodeNum++;
     }
     |Exp {
     $$=newAst("Args", 1, $1);
-    nodeList[_nodeNum] = $$;
-    _nodeNum++;
     }
     ;
 %%

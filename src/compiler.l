@@ -1,7 +1,7 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#include "../include/compiler.h"
+#include "../include/semantic.h"
 #include "compiler.tab.h"
 
 //外部变量声明，yytext和yyin分别为字符指针和文件指针
@@ -16,7 +16,8 @@
  /*十进制*/
 DIGIT [1-9]
 DIGITS [0-9]
-INT 0|({DIGIT}[DIGITS]*)
+INT 0|({DIGIT}{DIGITS}*)
+FLOAT ((({DIGITS}+\.{DIGITS}*)|({DIGITS}*\.{DIGITS}+)|INT)[Ee][-+]?{DIGITS}+)|({INT}\.{DIGITS})
  /*标识符*/
 LETTER_ [A-Za-z_]
 ID {LETTER_}({LETTER_}|{DIGITS})*
@@ -27,7 +28,7 @@ RETURN return
 IF if
 ELSE else
 WHILE while
-TYPE int
+TYPE int|float
 
  /*符号*/
 SEMI ;
@@ -69,13 +70,18 @@ AERROR .
 {EOL} {}
  /*关键字*/
 {TYPE} {yylval.type_pnode = newAst("TYPE", 0, yylineno); return TYPE;}
-{STRUCT} {yylval.type_pnode = newAst("STRUCT", 0, yylineno); return STRUCT;}
+{STRUCT} {
+      yylval.type_pnode = newAst("STRUCT", 0, yylineno);
+      strucNum++;
+      inStruc = 1;
+      return STRUCT;}
 {RETURN} {yylval.type_pnode = newAst("RETURN", 0, yylineno); return RETURN;}
 {IF} {yylval.type_pnode = newAst("IF", 0, yylineno); return IF;}
 {ELSE} {yylval.type_pnode = newAst("ELSE", 0, yylineno); return ELSE;}
 {WHILE} {yylval.type_pnode = newAst("WHILE", 0, yylineno); return WHILE;}
  /*数字类型表示*/
 {INT} {yylval.type_pnode = newAst("INT", 0, yylineno); return INT;}
+{FLOAT} {yylval.type_pnode = newAst("INT", 0, yylineno); return FLOAT;}
  /*符号*/
 {SEMI} {yylval.type_pnode = newAst("SEMI", 0, yylineno); return SEMI;}
 {COMMA} {yylval.type_pnode = newAst("COMMA", 0, yylineno); return COMMA;}
@@ -91,8 +97,20 @@ AERROR .
 {RP} {yylval.type_pnode = newAst("RP", 0, yylineno); return RP;}
 {LB} {yylval.type_pnode = newAst("LB", 0, yylineno); return LB;}
 {RB} {yylval.type_pnode = newAst("RB", 0, yylineno); return RB;}
-{LC} {yylval.type_pnode = newAst("LC", 0, yylineno); return LC;}
-{RC} {yylval.type_pnode = newAst("RC", 0, yylineno); return RC;}
+{LC} {
+      yylval.type_pnode = newAst("LC", 0, yylineno);
+      if (inStruc) {
+        LCnum++;
+      }
+      return LC;
+      }
+{RC} {
+      yylval.type_pnode = newAst("RC", 0, yylineno);
+      if (inStruc) {
+        LCnum--;
+      }
+      return RC;
+      }
 {RELOP} {yylval.type_pnode = newAst("RELOP", 0, yylineno); return RELOP;}
 
  /*标识符*/
