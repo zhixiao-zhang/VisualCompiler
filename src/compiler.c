@@ -1,7 +1,7 @@
 #include "../include/semantic.h"
 
-/*test*/
 int i;
+/*test the plug of gitglutter*/
 
 Ast newAst(char *name, int num, ...)
 {
