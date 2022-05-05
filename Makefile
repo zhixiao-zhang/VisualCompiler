@@ -1,8 +1,8 @@
 objects = compiler.tab.o lex.yy.o compiler.o
 midobj = compiler.tab.c lex.yy.c compiler.tab.h
 
-parser : $(objects)
-	cc -g -o parser $(objects)
+semantic : $(objects)
+	cc -g -o semantic $(objects)
 compiler.o : include/semantic.h
 	cc -g -c ./src/compiler.c
 compiler.tab.o : src/compiler.y
@@ -14,4 +14,4 @@ lex.yy.o : src/compiler.l include/semantic.h
 
 .PHONY : clean
 clean : 
-	rm parser $(objects) $(midobj)
+	rm semantic $(objects) $(midobj)

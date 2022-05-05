@@ -1,0 +1,10 @@
+lex.yy.c
+lex.yy.o
+
+compiler.tab.c
+compiler.tab.h
+compiler.tab.o
+
+compiler.o
+
+semantic
