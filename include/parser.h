@@ -32,15 +32,18 @@ Ast newAst(char *name, int number, ...);
 //先序遍历语法树(深度优先搜索)
 void PreOrder(Ast ast, int level);
 
+#ifndef _PARSER_
+#define _PARSER_
 //节点个数
-int _nodeNum;
+int static _nodeNum;
 
 //存放节点
-pnode nodeList[10000];
-int nodeIsChild[10000];
+pnode static nodeList[10000];
+int static nodeIsChild[10000];
 
 //设置状态
 void Childset(pnode node);
 
 //是否有错误
-int hasFault;
+int static hasFault;
+#endif
