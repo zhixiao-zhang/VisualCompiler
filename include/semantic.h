@@ -14,7 +14,6 @@ typedef struct var_ {
   struct var_ *next;
 } var;
 
-var *varhead, *vartail;
 
 void newvar(int num, ...);
 
@@ -39,10 +38,6 @@ typedef struct func_
     char *va_type[10];
     struct func_ *next;
 }func;
-func *funchead,*functail;
-// 记录函数实参
-int va_num;
-char* va_type[10];
 void getdetype(pnode val);//定义的参数
 void getretype(pnode val);//实际的参数
 void getargs(pnode Args);//获取实参
@@ -56,8 +51,6 @@ char *typefunc(pnode val);
 // 函数的形参个数
 int numfunc(pnode val);
 // 函数实际返回值类型
-char *rtype[10];
-int rnum;
 void getrtype(pnode val);
 
 // 数组符号表的结点
@@ -71,7 +64,7 @@ typedef struct array_
     int strucNum;
     struct array_ *next;
 }array;
-array *arrayhead,*arraytail;
+array static *arrayhead,*arraytail;
 // 建立数组符号
 void newarray(int num, ...);
 // 查找数组是否已经定义
@@ -90,14 +83,24 @@ typedef struct struc_
     int strucNum;
     struct struc_ *next;
 }struc;
-struc *struchead, *structail;
+struc static *struchead, *structail;
 // 建立结构体符号
 void newstruc(int num, ...);
 // 查找结构体是否已经定义
 int findstruc(pnode val);
+#ifndef _SEMANTIC_
+#define _SEMANTIC_
+var static *varhead, *vartail;
+func static *funchead,*functail;
+// 记录函数实参
+int static va_num;
+char static * va_type[10];
+char static *rtype[10];
+int static rnum;
 // 当前是结构体域
-int inStruc;
+int static inStruc;
 // 判断结构体域，{ 和 }是否抵消
-int LCnum;
+int static LCnum;
 // 当前是第几个结构体
-int strucNum;
+int static strucNum;
+#endif
