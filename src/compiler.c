@@ -582,6 +582,7 @@ int main(int argc, char **argv)
         yyrestart(f);
         yyparse();
         fclose(f);
+        printf("Hello, world!");
 
         // 遍历所有非子节点的节点
         if (hasFault)
