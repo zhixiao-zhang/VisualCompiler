@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include "../include/semantic.h"
+extern int yylex();
 %}
 %union{
 pnode type_pnode;
@@ -214,7 +215,7 @@ Dec:VarDec {
 Exp:Exp ASSIGNOP Exp {
    $$ = newAst("Exp", 3, $1, $2, $3);
    if ($1->type == NULL || $3->type == NULL) {
-      return;
+      return -1;
     }
    if (strcmp($1->type, $3->type)) {
       printf("Error type 2 at line %d:Type mismatched for for assignment.\n ", yylineno);

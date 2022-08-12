@@ -41,7 +41,7 @@ typedef struct func_
 void getdetype(pnode val);//定义的参数 de: declartion
 void getretype(pnode val);//实际的参数 re: real
 void getargs(pnode Args);//获取实参
-int checkrtype(pnode ID,pnode Args);//检查形参与实参是否一致
+int checkrtype(pnode Id, pnode Args);//检查形参与实参是否一致
 // 建立函数符号
 void newfunc(int num, ...);
 // 函数是否已经定义

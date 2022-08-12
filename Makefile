@@ -11,7 +11,6 @@ compiler.tab.o : src/compiler.y
 lex.yy.o : src/compiler.l include/semantic.h
 	flex ./src/compiler.l
 	cc -g -c lex.yy.c -I include
-
 .PHONY : clean
 clean : 
-	rm semantic $(objects) $(midobj)
+	-rm semantic $(objects) $(midobj)

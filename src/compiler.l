@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "../include/semantic.h"
 #include "compiler.tab.h"
+extern int yylex();
 
 //外部变量声明，yytext和yyin分别为字符指针和文件指针
 //这两个变量在lex提供的库值被定义，因此想要使用必须使用extern
