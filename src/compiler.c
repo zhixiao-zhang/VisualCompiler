@@ -537,7 +537,7 @@ int main(int argc, char **argv)
             continue;
         for (j = 0; j < _nodeNum; j++) {
             if (nodeIsChild[j] != 1) {
-                /*Preorder(nodeList[j], 0);*/
+                Preorder(nodeList[j], 0);
             }
         }
     }
