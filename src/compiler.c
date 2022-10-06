@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "../include/codegen.h"
 
@@ -32,7 +33,7 @@ Ast newAst(char *_tokenName, int num, ...)
         father->ncld = num;
         // 第一个孩子节点
         temp = va_arg(list, pnode);
-        father->cld[0] = temp;
+        (father->cld)[0] = temp;
         Childset(temp);
         // 父节点行号为第一个孩子节点的行号
         father->line = temp->line;
@@ -78,6 +79,8 @@ Ast newAst(char *_tokenName, int num, ...)
 // 父节点->左子节点->右子节点....
 void Preorder(Ast ast, int level, FILE *fp)
 {
+    if (!strcmp(ast->_tokenName, "Program"))
+        fprintf(fp, "语法分析树打印: \n");
     int i;
     if (ast != NULL) {
         // 层级结构缩进
@@ -92,55 +95,25 @@ void Preorder(Ast ast, int level, FILE *fp)
                 (!strcmp(ast->_tokenName, "TYPE"))) {
                 fprintf(fp, ": %s", ast->content);
             } else if (!strcmp(ast->_tokenName, "INT")) {
-                fprintf(fp, ": %d", (int)ast->value);
+                fprintf(fp, ": %d", (int)(ast->value));
             } else if (!strcmp(ast->_tokenName, "FLOAT")) {
                 fprintf(fp, ": %f", ast->value);
             } else {
                 // 非叶节点打印行号
                 fprintf(fp, "(%d)", ast->line);
             }
+            fprintf(fp, "\n");
         }
-        fprintf(fp, "\n");
         for (i = 0; i < ast->ncld; ++i) {
             Preorder((ast->cld)[i], level + 1, fp);
         }
     } else {
         return;
     }
+    if (!strcmp(ast->_tokenName, "Program"))
+        fprintf(fp, "打印完毕\n");
 }
 
-void Preorder1(Ast ast, int level)
-{
-    int i;
-    if (ast != NULL) {
-        // 层级结构缩进
-        if (ast->line != -1) {
-            for (i = 0; i < level; ++i) {
-                printf(" ");
-            }
-            // 打印节点类型
-            printf("%s", ast->_tokenName);
-            // 根据不同类型打印节点数据
-            if ((!strcmp(ast->_tokenName, "ID")) ||
-                (!strcmp(ast->_tokenName, "TYPE"))) {
-                printf(": %s", ast->content);
-            } else if (!strcmp(ast->_tokenName, "INT")) {
-                printf(": %d", (int)ast->value);
-            } else if (!strcmp(ast->_tokenName, "FLOAT")) {
-                printf(": %f", ast->value);
-            } else {
-                // 非叶节点打印行号
-                printf("(%d)", ast->line);
-            }
-        }
-        printf("\n");
-        for (i = 0; i < ast->ncld; ++i) {
-            Preorder1((ast->cld)[i], level + 1);
-        }
-    } else {
-        return;
-    }
-}
 // 错误处理
 void yyerror(char *msg)
 {
@@ -183,16 +156,15 @@ void newvar(int num, ...)
 
     if (inStruc && LCnum) {
         // 是结构体的域
-        res->inStruct = 1;
+        res->inStruc = 1;
         res->structNum = strucNum;
     } else {
-        res->inStruct = 0;
+        res->inStruc = 0;
         res->structNum = 0;
     }
 
     // 变量声明 int i
-    temp = va_arg(valist, pnode);
-    res->type = temp->content;
+    res->type = curType;
     temp = va_arg(valist, pnode);
     res->name = temp->content;
 
@@ -208,13 +180,13 @@ int ifvardef(pnode val)
         if (!strcmp(temp->name, val->content)) {
             if (inStruc && LCnum)  // 当前变量是结构体域
             {
-                if (!temp->inStruct) {
+                if (!temp->inStruc) {
                     // 结构体域与变量重名
                     printf(
                         "Error type 9 at Line %d:Struct Field and Variable use "
                         "the same _tokenName.\n",
                         yylineno);
-                } else if (temp->inStruct && temp->structNum != strucNum) {
+                } else if (temp->inStruc && temp->structNum != strucNum) {
                     // 不同结构体中的域重名
                     printf(
                         "Error type 10 at Line %d:Struct Fields use the same "
@@ -226,7 +198,7 @@ int ifvardef(pnode val)
                 }
             } else  // 当前变量是全局变量
             {
-                if (temp->inStruct) {
+                if (temp->inStruc) {
                     // 变量与结构体域重名
                     printf(
                         "Error type 9 at Line %d:Struct Field and Variable use "
@@ -428,7 +400,7 @@ char *typefunc(pnode val)
     temp = funchead->next;
     while (temp != NULL) {
         if (!strcmp(temp->name, val->content))
-            return temp->type;  //返回函数类型
+            return temp->rtype;  //返回函数类型
         temp = temp->next;
     }
     return NULL;
@@ -463,8 +435,7 @@ void newarray(int num, ...)
         res->strucNum = 0;
     }
     // int a[10]
-    temp = va_arg(valist, pnode);
-    res->type = temp->content;
+    res->type = curType;
     temp = va_arg(valist, pnode);
     res->name = temp->content;
     arraytail->next = res;
@@ -582,6 +553,8 @@ int main(int argc, char **argv)
 {
     int j;
     FILE *semantic_analysis = fopen("semantic_analysis.txt", "w");
+    FILE *IR = fopen("IR.txt", "w");
+    FILE *assembly = fopen("assembly.txt", "w");
     if (argc < 2) {
         return 1;
     }
@@ -659,10 +632,9 @@ int main(int argc, char **argv)
         for (j = 0; j < _nodeNum; j++) {
             if (nodeIsChild[j] != 1) {
                 Preorder(nodeList[j], 0, semantic_analysis);
-                /*Preorder1(nodeList[j], 0);*/
-                // InterCode codes = translate_Program(nodeList[j]);
-                // print_Codes(codes);
-                // generate_MIPS_Codes(codes);
+                InterCode codes = translate_Program(nodeList[j]);
+                print_Codes(codes, IR);
+                generate_MIPS_Codes(codes, assembly);
             }
         }
     }
@@ -772,10 +744,10 @@ InterCode new_assign_Code(Operand left, Operand right)
     return result;
 }
 // 打印一条中间代码
-void print_Code(InterCode code)
+void print_Code(InterCode code, FILE *fp)
 {
     if (code == NULL) {
-        printf("Error, InterCode is NULL\n");
+        fprintf(fp, "Error, InterCode is NULL\n");
         return;
     }
     switch (code->kind) {
@@ -783,138 +755,138 @@ void print_Code(InterCode code)
             // printf("Code NULL");
             break;
         case _LABLE:  // 定义标号
-            printf("LABLE ");
-            print_Operand(code->operands.var);
+            fprintf(fp, "LABLE ");
+            print_Operand(fp, code->operands.var);
             break;
         case _FUNCTION:  // 定义函数
-            printf("FUNCTION ");
-            print_Operand(code->operands.var);
+            fprintf(fp, "FUNCTION ");
+            print_Operand(fp, code->operands.var);
             break;
         case _ASSIGN:  // =
-            print_Operand(code->operands.assign.left);
-            printf(" := ");
-            print_Operand(code->operands.assign.right);
+            print_Operand(fp, code->operands.assign.left);
+            fprintf(fp, " := ");
+            print_Operand(fp, code->operands.assign.right);
             break;
         case _ADD:  // +
-            print_Operand(code->operands.binop.result);
-            printf(" := ");
-            print_Operand(code->operands.binop.op1);
-            printf(" + ");
-            print_Operand(code->operands.binop.op2);
+            print_Operand(fp, code->operands.binop.result);
+            fprintf(fp, " := ");
+            print_Operand(fp, code->operands.binop.op1);
+            fprintf(fp, " + ");
+            print_Operand(fp, code->operands.binop.op2);
             break;
         case _SUB:  // -
-            print_Operand(code->operands.binop.result);
-            printf(" := ");
-            print_Operand(code->operands.binop.op1);
-            printf(" - ");
-            print_Operand(code->operands.binop.op2);
+            print_Operand(fp, code->operands.binop.result);
+            fprintf(fp, " := ");
+            print_Operand(fp, code->operands.binop.op1);
+            fprintf(fp, " - ");
+            print_Operand(fp, code->operands.binop.op2);
             break;
         case _MUL:  // *
-            print_Operand(code->operands.binop.result);
-            printf(" := ");
-            print_Operand(code->operands.binop.op1);
-            printf(" * ");
-            print_Operand(code->operands.binop.op2);
+            print_Operand(fp, code->operands.binop.result);
+            fprintf(fp, " := ");
+            print_Operand(fp, code->operands.binop.op1);
+            fprintf(fp, " * ");
+            print_Operand(fp, code->operands.binop.op2);
             break;
         case _DIV:  // /
-            print_Operand(code->operands.binop.result);
-            printf(" := ");
-            print_Operand(code->operands.binop.op1);
-            printf(" / ");
-            print_Operand(code->operands.binop.op2);
+            print_Operand(fp, code->operands.binop.result);
+            fprintf(fp, " := ");
+            print_Operand(fp, code->operands.binop.op1);
+            fprintf(fp, " / ");
+            print_Operand(fp, code->operands.binop.op2);
             break;
         case _GOTO:  // 无条件跳转
-            printf("GOTO ");
-            print_Operand(code->operands.jump.lable);
+            fprintf(fp, "GOTO ");
+            print_Operand(fp, code->operands.jump.lable);
             break;
         case _IFGOTO:  // 判断跳转
-            printf("IF ");
-            print_Operand(code->operands.jump.op1);
-            printf(" %s ", code->operands.jump.relop);
-            print_Operand(code->operands.jump.op2);
-            printf(" GOTO ");
-            print_Operand(code->operands.jump.lable);
+            fprintf(fp, "IF ");
+            print_Operand(fp, code->operands.jump.op1);
+            fprintf(fp, " %s ", code->operands.jump.relop);
+            print_Operand(fp, code->operands.jump.op2);
+            fprintf(fp, " GOTO ");
+            print_Operand(fp, code->operands.jump.lable);
             break;
         case _RETURN:  // 函数返回
-            printf("RETURN ");
-            print_Operand(code->operands.var);
+            fprintf(fp, "RETURN ");
+            print_Operand(fp, code->operands.var);
             break;
         case _ARG:  // 传实参
-            printf("ARG ");
-            print_Operand(code->operands.var);
+            fprintf(fp, "ARG ");
+            print_Operand(fp, code->operands.var);
             break;
         case _CALL:  // 函数调用
             if (code->operands.assign.left == NULL) {
-                printf("CALL ");
+                fprintf(fp, "CALL ");
             } else {
-                print_Operand(code->operands.assign.left);
-                printf(" := CALL ");
+                print_Operand(fp, code->operands.assign.left);
+                fprintf(fp, " := CALL ");
             }
-            print_Operand(code->operands.assign.right);
+            print_Operand(fp, code->operands.assign.right);
             break;
         case _PARAM:  // 函数参数声明
-            printf("PARAM ");
-            print_Operand(code->operands.var);
+            fprintf(fp, "PARAM ");
+            print_Operand(fp, code->operands.var);
             break;
         case _READ:  // 从控制台读取x
-            printf("READ ");
-            print_Operand(code->operands.var);
+            fprintf(fp, "READ ");
+            print_Operand(fp, code->operands.var);
             break;
         case _WRITE:  // 向控制台打印x
-            printf("WRITE ");
-            print_Operand(code->operands.var);
+            fprintf(fp, "WRITE ");
+            print_Operand(fp, code->operands.var);
             break;
         default:
-            printf("Code Error");
+            fprintf(fp, "Code Error");
             break;
     }
     if (code->kind != _NULL)
-        printf("\n");
+        fprintf(fp, "\n");
 }
 // 打印一个操作数
-void print_Operand(Operand op)
+void print_Operand(FILE *fp, Operand op)
 {
     if (op == NULL) {
-        printf("Error, Operand is NULL\n");
+        fprintf(fp, "Error, Operand is NULL\n");
         return;
     }
     switch (op->kind) {
         case VARIABLE:
         case FUNC:
-            printf("%s", op->operand.name);
+            fprintf(fp, "%s", op->operand.name);
             break;
         case TEMPVAR:
-            printf("t%d", op->operand.tempvar);
+            fprintf(fp, "t%d", op->operand.tempvar);
             break;
         case LABLE:
-            printf("lable%d", op->operand.lable);
+            fprintf(fp, "lable%d", op->operand.lable);
             break;
         case CONSTANT:
-            printf("#%d", op->operand.value);
+            fprintf(fp, "#%d", op->operand.value);
             break;
         case ADDRESS:
-            printf("&%s", op->operand.name);
+            fprintf(fp, "&%s", op->operand.name);
             break;
         case VALUE:
-            printf("#%s", op->operand.name);
+            fprintf(fp, "#%s", op->operand.name);
             break;
         default:
-            printf("Operand Error");
+            fprintf(fp, "Operand Error");
             break;
     }
 }
 // 打印一段中间代码
-void print_Codes(InterCode codes)
+void print_Codes(InterCode codes, FILE *fp)
 {
-    printf("\n中间代码打印：\n");
+    fprintf(fp, "中间代码打印：\n");
     // InterCode temp = new_Code();
     // temp = codes;
     InterCode temp = codes;
     while (temp) {
-        print_Code(temp);
+        print_Code(temp, fp);
         temp = temp->next;
     }
-    printf("打印完毕\n");
+    fprintf(fp, "打印完毕\n");
 }
 // 获取链表的尾部
 InterCode get_Tail(InterCode codes)
@@ -1664,8 +1636,8 @@ char *allocate_reg(Operand op)
 {
     int i;
     char *regnumber = (char *)malloc(sizeof(char) * 10);
-    char *reg_tokenName = (char *)malloc(sizeof(char) * 10);
-    strcat(reg_tokenName, "$t");
+    char *regname = (char *)malloc(sizeof(char) * 10);
+    strcat(regname, "$t");
     // 常数0 寄存器
     if (op->kind == CONSTANT && op->operand.value == 0)
         return "$zero";
@@ -1692,55 +1664,57 @@ char *allocate_reg(Operand op)
     }
     if (find) {
         Int2String(i, regnumber);
-        strcat(reg_tokenName, regnumber);
-        return reg_tokenName;
+        strcat(regname, regnumber);
+        return regname;
     } else {
         Int2String(reg_num, regnumber);
-        strcat(reg_tokenName, regnumber);
+        strcat(regname, regnumber);
         regs[reg_num] = op;
         reg_num++;
-        return reg_tokenName;
+        return regname;
     }
 }
 // 根据中间代码生成mips代码
-void generate_MIPS_Codes(InterCode codes)
+void generate_MIPS_Codes(InterCode codes, FILE *fp)
 {
-    printf("\n目标代码打印：\n");
+    fprintf(fp, "目标代码打印：\n");
     // 声明部分
-    printf(".data\n_prompt: .asciiz \"Enter an integer:\"\n");
-    printf("_ret: .asciiz \"\\n\"\n.globl main\n.text\n");
+    fprintf(fp, ".data\n_prompt: .asciiz \"Enter an integer:\"\n");
+    fprintf(fp, "_ret: .asciiz \"\\n\"\n.globl main\n.text\n");
     // read函数
-    printf("read:\n\tli $v0, 4\n\tla $a0, _prompt\n\tsyscall\n");
-    printf("\tli $v0, 5\n\tsyscall\n\tjr $ra\n\n");
+    fprintf(fp, "read:\n    li $v0, 4\n    la $a0, _prompt\n    syscall\n");
+    fprintf(fp, "    li $v0, 5\n    syscall\n    jr $ra\n\n");
     // write函数
-    printf("write:\n\tli $v0, 1\n\tsyscall\n\tli $v0, 4\n\tla $a0, _ret\n");
-    printf("\tsyscall\n\tmove $v0, $0\n\tjr $ra\n\n");
+    fprintf(fp,
+            "write:\n    li $v0, 1\n    syscall\n    li $v0, 4\n    la $a0, "
+            "_ret\n");
+    fprintf(fp, "    syscall\n    move $v0, $0\n    jr $ra\n\n");
     InterCode temp = new_Code();
     temp = codes;
     while (temp != NULL) {
-        generate_MIPS_Code(temp);
+        generate_MIPS_Code(temp, fp);
         temp = temp->next;
     }
-    printf("打印完毕\n");
+    fprintf(fp, "打印完毕\n");
 }
 // 翻译单条中间代码
-void generate_MIPS_Code(InterCode code)
+void generate_MIPS_Code(InterCode code, FILE *fp)
 {
     if (code == NULL) {
-        printf("Error, MIPS is NULL\n");
+        fprintf(fp, "Error, MIPS is NULL\n");
         return;
     }
     switch (code->kind) {
         case _NULL:
             break;
         case _LABLE: {
-            print_Operand(code->operands.var);
-            printf(":\n");
+            print_Operand(fp, code->operands.var);
+            fprintf(fp, ":\n");
             break;
         }
         case _FUNCTION: {
-            print_Operand(code->operands.var);
-            printf(":\n");
+            print_Operand(fp, code->operands.var);
+            fprintf(fp, ":\n");
             break;
         }
         case _ASSIGN: {
@@ -1751,11 +1725,11 @@ void generate_MIPS_Code(InterCode code)
                 if (left->kind == TEMPVAR && right->value == 0)
                     break;
                 else
-                    printf("\tli %s, %d\n", allocate_reg(left),
-                           right->operand.value);
+                    fprintf(fp, "    li %s, %d\n", allocate_reg(left),
+                            right->operand.value);
             } else {
-                printf("\tmove %s, %s\n", allocate_reg(left),
-                       allocate_reg(right));
+                fprintf(fp, "    move %s, %s\n", allocate_reg(left),
+                        allocate_reg(right));
             }
             break;
         }
@@ -1764,11 +1738,11 @@ void generate_MIPS_Code(InterCode code)
             Operand op1 = code->operands.binop.op1;
             Operand op2 = code->operands.binop.op2;
             if (op2->kind == CONSTANT) {
-                printf("\taddi %s, %s, %d\n", allocate_reg(result),
-                       allocate_reg(op1), op2->value);
+                fprintf(fp, "    addi %s, %s, %d\n", allocate_reg(result),
+                        allocate_reg(op1), op2->value);
             } else {
-                printf("\tadd %s, %s, %s\n", allocate_reg(result),
-                       allocate_reg(op1), allocate_reg(op2));
+                fprintf(fp, "    add %s, %s, %s\n", allocate_reg(result),
+                        allocate_reg(op1), allocate_reg(op2));
             }
             break;
         }
@@ -1777,11 +1751,11 @@ void generate_MIPS_Code(InterCode code)
             Operand op1 = code->operands.binop.op1;
             Operand op2 = code->operands.binop.op2;
             if (op2->kind == CONSTANT) {
-                printf("\taddi %s, %s, %d\n", allocate_reg(result),
-                       allocate_reg(op1), -(op2->value));
+                fprintf(fp, "    addi %s, %s, %d\n", allocate_reg(result),
+                        allocate_reg(op1), -(op2->value));
             } else {
-                printf("\tsub %s, %s, %s\n", allocate_reg(result),
-                       allocate_reg(op1), allocate_reg(op2));
+                fprintf(fp, "    sub %s, %s, %s\n", allocate_reg(result),
+                        allocate_reg(op1), allocate_reg(op2));
             }
             break;
         }
@@ -1789,23 +1763,24 @@ void generate_MIPS_Code(InterCode code)
             Operand result = code->operands.binop.result;
             Operand op1 = code->operands.binop.op1;
             Operand op2 = code->operands.binop.op2;
-            printf("\tmul %s, %s, %s\n", allocate_reg(result),
-                   allocate_reg(op1), allocate_reg(op2));
+            fprintf(fp, "    mul %s, %s, %s\n", allocate_reg(result),
+                    allocate_reg(op1), allocate_reg(op2));
             break;
         }
         case _DIV: {
             Operand result = code->operands.binop.result;
             Operand op1 = code->operands.binop.op1;
             Operand op2 = code->operands.binop.op2;
-            printf("\tdiv %s, %s\n", allocate_reg(op1), allocate_reg(op2));
-            printf("\tmflo %s\n", allocate_reg(result));
+            fprintf(fp, "    div %s, %s\n", allocate_reg(op1),
+                    allocate_reg(op2));
+            fprintf(fp, "    mflo %s\n", allocate_reg(result));
             break;
         }
         case _GOTO: {
             Operand lable = code->operands.jump.lable;
-            printf("\tj ");
-            print_Operand(lable);
-            printf("\n");
+            fprintf(fp, "    j ");
+            print_Operand(fp, lable);
+            fprintf(fp, "\n");
             break;
         }
         case _CALL: {
@@ -1813,28 +1788,28 @@ void generate_MIPS_Code(InterCode code)
         }
         case _READ: {
             Operand op = code->operands.var;
-            printf("\taddi $sp, $sp, -4\n");
-            printf("\tsw $ra, 0($sp)\n");
-            printf("\tjal read\n");
-            printf("\tlw $ra, 0($sp)\n");
-            printf("\taddi $sp, $sp, 4\n");
-            printf("\tmove %s, $v0\n", allocate_reg(op));
+            fprintf(fp, "    addi $sp, $sp, -4\n");
+            fprintf(fp, "    sw $ra, 0($sp)\n");
+            fprintf(fp, "    jal read\n");
+            fprintf(fp, "    lw $ra, 0($sp)\n");
+            fprintf(fp, "    addi $sp, $sp, 4\n");
+            fprintf(fp, "    move %s, $v0\n", allocate_reg(op));
             break;
         }
         case _WRITE: {
             Operand op = code->operands.var;
-            printf("\tmove $a0, %s\n", allocate_reg(op));
-            printf("\taddi $sp, $sp, -4\n");
-            printf("\tsw $ra, 0($sp)\n");
-            printf("\tjal write\n");
-            printf("\tlw $ra, 0($sp)\n");
-            printf("\taddi $sp, $sp, 4\n");
+            fprintf(fp, "    move $a0, %s\n", allocate_reg(op));
+            fprintf(fp, "    addi $sp, $sp, -4\n");
+            fprintf(fp, "    sw $ra, 0($sp)\n");
+            fprintf(fp, "    jal write\n");
+            fprintf(fp, "    lw $ra, 0($sp)\n");
+            fprintf(fp, "    addi $sp, $sp, 4\n");
             break;
         }
         case _RETURN: {
             Operand res = code->operands.var;
-            printf("\tmove $v0, %s\n", allocate_reg(res));
-            printf("\tjr $ra\n");
+            fprintf(fp, "    move $v0, %s\n", allocate_reg(res));
+            fprintf(fp, "    jr $ra\n");
             break;
         }
         case _IFGOTO: {
@@ -1843,29 +1818,35 @@ void generate_MIPS_Code(InterCode code)
             Operand op1 = code->operands.jump.op1;
             Operand op2 = code->operands.jump.op2;
             if (!strcmp(op, "==")) {
-                printf("\tbeq %s, %s, ", allocate_reg(op1), allocate_reg(op2));
-                print_Operand(lable);
-                printf("\n");
+                fprintf(fp, "    beq %s, %s, ", allocate_reg(op1),
+                        allocate_reg(op2));
+                print_Operand(fp, lable);
+                fprintf(fp, "\n");
             } else if (!strcmp(op, "!=")) {
-                printf("\tbne %s, %s, ", allocate_reg(op1), allocate_reg(op2));
-                print_Operand(lable);
-                printf("\n");
+                fprintf(fp, "    bne %s, %s, ", allocate_reg(op1),
+                        allocate_reg(op2));
+                print_Operand(fp, lable);
+                fprintf(fp, "\n");
             } else if (!strcmp(op, ">")) {
-                printf("\tbgt %s, %s, ", allocate_reg(op1), allocate_reg(op2));
-                print_Operand(lable);
-                printf("\n");
+                fprintf(fp, "    bgt %s, %s, ", allocate_reg(op1),
+                        allocate_reg(op2));
+                print_Operand(fp, lable);
+                fprintf(fp, "\n");
             } else if (!strcmp(op, "<")) {
-                printf("\tblt %s, %s, ", allocate_reg(op1), allocate_reg(op2));
-                print_Operand(lable);
-                printf("\n");
+                fprintf(fp, "    blt %s, %s, ", allocate_reg(op1),
+                        allocate_reg(op2));
+                print_Operand(fp, lable);
+                fprintf(fp, "\n");
             } else if (!strcmp(op, ">=")) {
-                printf("\tbge %s, %s, ", allocate_reg(op1), allocate_reg(op2));
-                print_Operand(lable);
-                printf("\n");
+                fprintf(fp, "    bge %s, %s, ", allocate_reg(op1),
+                        allocate_reg(op2));
+                print_Operand(fp, lable);
+                fprintf(fp, "\n");
             } else if (!strcmp(op, "<=")) {
-                printf("\tble %s, %s, ", allocate_reg(op1), allocate_reg(op2));
-                print_Operand(lable);
-                printf("\n");
+                fprintf(fp, "    ble %s, %s, ", allocate_reg(op1),
+                        allocate_reg(op2));
+                print_Operand(fp, lable);
+                fprintf(fp, "\n");
             }
             break;
         }

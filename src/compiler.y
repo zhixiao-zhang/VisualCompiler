@@ -41,11 +41,6 @@ ExtDefList:ExtDef ExtDefList {
           ;
 ExtDef:Specifire ExtDecList SEMI {
       $$=newAst("ExtDef",3,$1,$2,$3);
-      if (ifvardef($2)) {
-        printf("Error type 7 at line %d:Redefined Variable '%s'\n", yylineno, $2->content);
-        } else {
-          newvar(2, $1, $2);
-        }
       }
     |Specifire SEMI {
     $$=newAst("ExtDef",2,$1,$2);
@@ -57,7 +52,14 @@ ExtDef:Specifire ExtDecList SEMI {
     ;
 ExtDecList:VarDec {
           $$ = newAst("ExtDecList", 1, $1);
+          if (ifvardef($1)) {
+            printf("Error type 7 at Line %d: Redefined variable '%s'\n", yylineno, $1->content);
+            exit(-1);
           }
+          else {
+            newvar(1, $1);
+          }
+    }
     |VarDec COMMA ExtDecList {
     $$ = newAst("ExtDecList", 3, $1, $2, $3);
     }
@@ -68,7 +70,7 @@ Specifire:TYPE {
          $$ = newAst("Specifire", 1, $1);
          }
     | StructSpecifire {
-    $$ = newAst("StructSpecifire", 1, $1);
+    $$ = newAst("Specifire", 1, $1);
     }
     ;
 StructSpecifire:STRUCT OptTag LC DefList RC {
@@ -76,6 +78,7 @@ StructSpecifire:STRUCT OptTag LC DefList RC {
                $$ = newAst("StructSpecifire", 5, $1, $2, $3, $4, $5);
                if (findstruc($2)) {
                   printf("Error type 11 at line %d:Dulpicated name '%s'\n", yylineno, $2->content);
+                  exit(-1);
                 } else {
                   newstruc(1, $2);
                 }
@@ -100,6 +103,7 @@ Tag:ID {
 VarDec:ID {
       $$ = newAst("VarDec", 1, $1);
       $$->tag = 1;
+      $$->content = $1->content;
       }
       |VarDec LB INT RB {
       $$ = newAst("VarDec", 4, $1, $2, $3, $4);
@@ -112,6 +116,7 @@ FunDec:ID LP VarList RP {
       $$->content = $1->content;
       if (findfunc($1)) {
           printf("Error type 8 line %d:Redefined Function '%s'\n ", yylineno, $1->content);
+          exit(-1);
         } else {
           newfunc(2, $1, $3);
         }
@@ -120,7 +125,8 @@ FunDec:ID LP VarList RP {
            $$ = newAst("FunDec", 3, $1, $2, $3);
            $$->content = $1->content;
            if (findfunc($1)) {
-              printf("Error type 8 line %d:Redefined Function '%s'\n ", yylineno, $1->content);
+                    printf("Error type 8 line %d:Redefined Function '%s'\n ", yylineno, $1->content);
+                    exit(-1);
               } else {
                 newfunc(2, $1, $3);
               }
@@ -137,6 +143,7 @@ ParamDec:Specifire VarDec {
         $$ = newAst("ParamDec", 2, $1, $2);
         if (ifvardef($2) || ifarraydef($2)) {
             printf("Error type 7 at line %d:Redefined Variable '%s'\n", yylineno, $2->content);
+            exit(-1);
           } else if($2->tag == 4) {
             newarray(2, $1, $2);
           } else {
@@ -164,35 +171,28 @@ Stmt:Exp SEMI {
     $$ = newAst("Stmt", 1, $1);
     }
     |RETURN Exp SEMI {
-    $$ = newAst("Stmt", 3, $1, $2, $3);
-    getrtype($2);
+        $$ = newAst("Stmt", 3, $1, $2, $3);
+        getrtype($2);
     }
     |IF LP Exp RP Stmt %prec LOWER_THAN_ELSE {
-    $$ = newAst("Stmt", 5, $1, $2, $3, $4, $5);
+        $$ = newAst("Stmt", 5, $1, $2, $3, $4, $5);
     }
     |IF LP Exp RP Stmt ELSE Stmt {
-    $$ = newAst("Stmt", 7, $1, $2, $3, $4, $5, $6, $7);
+        $$ = newAst("Stmt", 7, $1, $2, $3, $4, $5, $6, $7);
     }
     |WHILE LP Exp RP Stmt {
-    $$ = newAst("Stmt", 5, $1, $2, $3, $4, $5);
+        $$ = newAst("Stmt", 5, $1, $2, $3, $4, $5);
     }
     ;
 DefList:Def DefList {
-       $$ = newAst("DefList", 2, $1, $2);
+            $$ = newAst("DefList", 2, $1, $2);
        }
        | {
-       $$ = newAst("DefList", 0, -1);
+            $$ = newAst("DefList", 0, -1);
        }
        ;
 Def:Specifire DecList SEMI {
    $$ = newAst("Def", 3, $1, $2, $3);
-   if (ifvardef($2) || ifarraydef($2)) {
-      printf("Error type 7 at line %d:Redefined Variable '%s'\n", yylineno, $2->content);
-     } else if($2->tag == 4) {
-        newarray(2, $1, $2);
-     } else {
-        newvar(2, $1, $2);
-     }
    }
    ;
 DecList:Dec {
@@ -205,24 +205,42 @@ DecList:Dec {
        ;
 Dec:VarDec {
    $$ = newAst("Dec", 1, $1);
+   if (ifvardef($1) || ifarraydef($1)) {
+      printf("Error type 7 at line %d:Redefined Variable '%s'\n", yylineno, $1->content);
+      exit(-1);
+     } else if($1->tag == 4) {
+        newarray(1, $1);
+     } else {
+        newvar(1, $1);
+     }
    }
    |VarDec ASSIGNOP Exp {
    $$ = newAst("Dec", 3, $1, $2, $3);
    $$->content = $1->content;
+   if (ifvardef($1) || ifarraydef($1)) {
+      printf("Error type 7 at line %d:Redefined Variable '%s'\n", yylineno, $1->content);
+      exit(-1);
+     } else if($1->tag == 4) {
+        newarray(1, $1);
+     } else {
+        newvar(1, $1);
+     }
    }
    ;
  /*Expression*/
 Exp:Exp ASSIGNOP Exp {
    $$ = newAst("Exp", 3, $1, $2, $3);
    if ($1->type == NULL || $3->type == NULL) {
-      return -1;
-    }
-   if (strcmp($1->type, $3->type)) {
-      printf("Error type 2 at line %d:Type mismatched for for assignment.\n ", yylineno);
-    }
-   if (!checkleft($1)) {
-      printf("Error type 3 at line %d:The left-hand side of an assignment must be a Variable.\n ", yylineno);
-    }
+    } else {
+        if (strcmp($1->type, $3->type)) {
+            printf("Error type 2 at line %d:Type mismatched for for assignment.\n ", yylineno);
+            exit(-1);
+        }
+        if (!checkleft($1)) {
+            printf("Error type 3 at line %d:The left-hand side of an assignment must be a Variable.\n ", yylineno);
+            exit(-1);
+        }
+      }
    }
    |Exp AND Exp {
    $$ = newAst("Exp", 3, $1, $2, $3);
@@ -237,24 +255,28 @@ Exp:Exp ASSIGNOP Exp {
    $$ = newAst("Exp", 3, $1, $2, $3);
    if (strcmp($1->type, $3->type)) {
       printf("Error type 6 at line %d:Type mismatched for for operands.\n ", yylineno);
+      exit(-1);
     }
    }
    |Exp MINUS Exp {
    $$ = newAst("Exp", 3, $1, $2, $3);
    if (strcmp($1->type, $3->type)) {
       printf("Error type 6 at line %d:Type mismatched for for operands.\n ", yylineno);
+      exit(-1);
     }
    }
    |Exp STAR Exp {
    $$ = newAst("Exp", 3, $1, $2, $3);
    if (strcmp($1->type, $3->type)) {
       printf("Error type 6 at line %d:Type mismatched for for operands.\n ", yylineno);
+      exit(-1);
     }
    }
    |Exp DIV Exp {
    $$ = newAst("Exp", 3, $1, $2, $3);
    if (strcmp($1->type, $3->type)) {
       printf("Error type 6 at line %d:Type mismatched for for operands.\n ", yylineno);
+      exit(-1);
     }
    }
    |LP Exp RP {
@@ -269,20 +291,27 @@ Exp:Exp ASSIGNOP Exp {
    |ID LP Args RP {
    $$ = newAst("Exp", 4, $1, $2, $3, $4);
    if(!findfunc($1) && (ifvardef($1)||ifarraydef($1))) {
-			printf("Error type 4 at Line %d:'%s' is not a function.\n ",yylineno,$1->content);
-		} else if(!findfunc($1)) {
-			  printf("Error type 5 at Line %d:Undefined function %s\n ",yylineno,$1->content);
+            printf("Error type 4 at Line %d:'%s' is not a function.\n ",yylineno,$1->content);
+            exit(-1);
+    } else if(!findfunc($1)) {
+            printf("Error type 5 at Line %d:Undefined function %s\n ",yylineno,$1->content);
+            exit(-1);
     } else if(checkrtype($1,$3)){
-			  printf("Error type 13 at Line %d:Function parameter type error.\n ",yylineno);
-		} else{}
+            printf("Error type 13 at Line %d:Function parameter type error.\n ",yylineno);
+            exit(-1);
+    } else{}
    }
    |ID LP RP {
    $$ = newAst("Exp", 3, $1, $2, $3);
    if(!findfunc($1) && (ifvardef($1)||ifarraydef($1))) {
-			printf("Error type 4 at Line %d:'%s' is not a function.\n ",yylineno,$1->content);
-		} else if(!findfunc($1)) {
-			  printf("Error type 5 at Line %d:Undefined function %s\n ",yylineno,$1->content);
-		} else{}
+            printf("Error type 4 at Line %d:'%s' is not a function.\n ",yylineno,$1->content);
+            exit(-1);
+    } else if(!findfunc($1)) {
+        printf("Error type 5 at Line %d:Undefined function %s\n ",yylineno,$1->content);
+            exit(-1);
+    } else{
+        $$->type = typefunc($1);
+    }
    }
    |Exp LB Exp RB {
    $$ = newAst("Exp", 4, $1, $2, $3, $4);
@@ -294,6 +323,7 @@ Exp:Exp ASSIGNOP Exp {
    $$ = newAst("Exp", 1, $1);
    if (!ifvardef($1) && !ifarraydef($1)) {
       printf("Error type 1 at line %d:Undefined Variable %s\n ", yylineno, $1->content);
+            exit(-1);
     } else {
       $$->type = typevar($1);
     }
@@ -306,7 +336,6 @@ Exp:Exp ASSIGNOP Exp {
    | FLOAT {
    $$ = newAst("Exp", 1, $1);
    $$->tag = 3;
-   $$->type = "float";
    $$->value = $1->value;
    }
    ;

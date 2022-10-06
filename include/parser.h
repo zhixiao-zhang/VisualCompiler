@@ -33,18 +33,15 @@ Ast newAst(char *name, int number, ...);
 void PreOrder(Ast ast, int level, FILE *fp);
 void Preorder1(Ast ast, int level);
 
-#ifndef _PARSER_
-#define _PARSER_
 //节点个数
-int static _nodeNum;
+int  _nodeNum;
 
 //存放节点
-pnode static nodeList[10000];
-int static nodeIsChild[10000];
+pnode nodeList[10000];
+int nodeIsChild[10000];
 
 //设置状态
 void Childset(pnode node);
 
 //是否有错误
-int static hasFault;
-#endif
+int hasFault;

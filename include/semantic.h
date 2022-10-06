@@ -8,7 +8,7 @@ typedef struct var_ {
   char *name;
   char *type;
   //所在作用域是否为结构体域
-  int inStruct;
+  int inStruc;
   //所属的结构体编号
   int structNum;
   struct var_ *next;
@@ -64,7 +64,7 @@ typedef struct array_
     int strucNum;
     struct array_ *next;
 }array;
-array static *arrayhead,*arraytail;
+array *arrayhead,*arraytail;
 // 建立数组符号
 void newarray(int num, ...);
 // 查找数组是否已经定义
@@ -83,25 +83,22 @@ typedef struct struc_
     int strucNum;
     struct struc_ *next;
 }struc;
-struc static *struchead, *structail;
+struc *struchead, *structail;
 // 建立结构体符号
 void newstruc(int num, ...);
 // 查找结构体是否已经定义
 int findstruc(pnode val);
-#ifndef _SEMANTIC_
-#define _SEMANTIC_
-var static *varhead, *vartail;
-func static *funchead,*functail;
+var *varhead, *vartail;
+func *funchead,*functail;
 // 记录函数实参
-int static va_num;
-char static * va_type[10];
-char static *rtype[10];
-int static rnum;
+int va_num;
+char * va_type[10];
+char *rtype[10];
+int rnum;
 // 当前是结构体域
-int static inStruc;
+int inStruc;
 // 判断结构体域，{ 和 }是否抵消
-int static LCnum;
+int LCnum;
 // 当前是第几个结构体
-int static strucNum;
+int strucNum;
 char *curType;
-#endif

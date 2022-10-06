@@ -99,11 +99,11 @@ InterCode new_goto_Code(Operand lable);
 // 创建一条赋值的中间代码
 InterCode new_assign_Code(Operand left, Operand right);
 // 打印一条中间代码
-void print_Code(InterCode code);
+void print_Code(InterCode code, FILE *fp);
 // 打印一个操作数
-void print_Operand(Operand op);
+void print_Operand(FILE *fp, Operand op);
 // 打印一段中间代码
-void print_Codes(InterCode codes);
+void print_Codes(InterCode codes, FILE *fp);
 // 获取链表的尾部
 InterCode get_Tail(InterCode codes);
 // 在链表末尾加上另一条链表
@@ -164,5 +164,5 @@ int reg_num;
 // 分配寄存器
 char* allocate_reg(Operand op);
 // 根据中间代码生成mips代码
-void generate_MIPS_Codes(InterCode codes);
-void generate_MIPS_Code(InterCode code);
+void generate_MIPS_Codes(InterCode codes, FILE *fp);
+void generate_MIPS_Code(InterCode code, FILE *fp);
