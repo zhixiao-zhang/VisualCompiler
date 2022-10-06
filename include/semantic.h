@@ -103,4 +103,5 @@ int static inStruc;
 int static LCnum;
 // 当前是第几个结构体
 int static strucNum;
+char *curType;
 #endif

@@ -20,6 +20,7 @@ Ast newAst(char *_tokenName, int num, ...)
         exit(0);
     }
     father->_tokenName = _tokenName;
+    father->type = NULL;
 
     // 参数列表，详见 stdarg.h 用法
     va_list list;
@@ -35,6 +36,7 @@ Ast newAst(char *_tokenName, int num, ...)
         Childset(temp);
         // 父节点行号为第一个孩子节点的行号
         father->line = temp->line;
+        father->type = temp->type;
 
         if (num == 1) {
             //父节点的语义值等于左孩子的语义值
@@ -60,6 +62,7 @@ Ast newAst(char *_tokenName, int num, ...)
             father->type = "float";
             father->value = atof(yytext);
         } else {
+            father->type = curType;
             // 存储词法单元语义值
             char *str;
             str = (char *)malloc(sizeof(char) * 40);
@@ -78,11 +81,11 @@ void Preorder(Ast ast, int level, FILE *fp)
     int i;
     if (ast != NULL) {
         // 层级结构缩进
-        for (i = 0; i < level; ++i) {
-            fprintf(fp, " ");
-        }
         if (ast->line != -1) {
             // 打印节点类型
+            for (i = 0; i < level; ++i) {
+                fprintf(fp, " ");
+            }
             fprintf(fp, "%s", ast->_tokenName);
             // 根据不同类型打印节点数据
             if ((!strcmp(ast->_tokenName, "ID")) ||
@@ -111,10 +114,10 @@ void Preorder1(Ast ast, int level)
     int i;
     if (ast != NULL) {
         // 层级结构缩进
-        for (i = 0; i < level; ++i) {
-            printf(" ");
-        }
         if (ast->line != -1) {
+            for (i = 0; i < level; ++i) {
+                printf(" ");
+            }
             // 打印节点类型
             printf("%s", ast->_tokenName);
             // 根据不同类型打印节点数据
@@ -603,8 +606,8 @@ int main(int argc, char **argv)
 
         // 初始化节点记录列表
         _nodeNum = 0;
-        memset(nodeList, 0, sizeof(pnode) * 5000);
-        memset(nodeIsChild, 0, sizeof(int) * 5000);
+        memset(nodeList, 0, sizeof(pnode) * 10000);
+        memset(nodeIsChild, 0, sizeof(int) * 10000);
         hasFault = 0;
 
         // 初始化临时变量、标签数组
@@ -655,11 +658,11 @@ int main(int argc, char **argv)
             continue;
         for (j = 0; j < _nodeNum; j++) {
             if (nodeIsChild[j] != 1) {
-                // Preorder(nodeList[j], 0, semantic_analysis);
-                Preorder1(nodeList[j], 0);
-                InterCode codes = translate_Program(nodeList[j]);
-                print_Codes(codes);
-                generate_MIPS_Codes(codes);
+                Preorder(nodeList[j], 0, semantic_analysis);
+                /*Preorder1(nodeList[j], 0);*/
+                // InterCode codes = translate_Program(nodeList[j]);
+                // print_Codes(codes);
+                // generate_MIPS_Codes(codes);
             }
         }
     }
