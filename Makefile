@@ -1,16 +1,16 @@
 objects = compiler.tab.o lex.yy.o compiler.o
 midobj = compiler.tab.c lex.yy.c compiler.tab.h
 
-semantic : $(objects)
-	cc -g -o semantic $(objects)
-compiler.o : include/semantic.h
-	cc -g -c ./src/compiler.c
+zzxcc : $(objects)
+	gcc -g -o zzxcc $(objects)
+compiler.o : include/codegen.h
+	gcc -g -c ./src/compiler.c
 compiler.tab.o : src/compiler.y
 	bison -d ./src/compiler.y
-	cc -g -c compiler.tab.c -I include
+	gcc -g -c compiler.tab.c -I include
 lex.yy.o : src/compiler.l include/semantic.h
 	flex ./src/compiler.l
-	cc -g -c lex.yy.c -I include
+	gcc -g -c lex.yy.c -I include
 .PHONY : clean
 clean : 
-	-rm semantic $(objects) $(midobj)
+	-rm zzxcc $(objects) $(midobj) semantic_analysis.txt

@@ -70,7 +70,12 @@ AERROR .
 {COMMENT} {}
 {EOL} {}
  /*关键字*/
-{TYPE} {yylval.type_pnode = newAst("TYPE", 0, yylineno); return TYPE;}
+{TYPE} {yylval.type_pnode = newAst("TYPE", 0, yylineno);
+        char *str;
+        str = (char *)malloc(sizeof(char) * 40);
+        strcpy(str, yytext);
+        curType = str;
+        return TYPE;}
 {STRUCT} {
       yylval.type_pnode = newAst("STRUCT", 0, yylineno);
       strucNum++;
