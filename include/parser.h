@@ -30,7 +30,8 @@ typedef struct parserNode {
 Ast newAst(char *name, int number, ...);
 
 //先序遍历语法树(深度优先搜索)
-void PreOrder(Ast ast, int level);
+void PreOrder(Ast ast, int level, FILE *fp);
+void Preorder1(Ast ast, int level);
 
 #ifndef _PARSER_
 #define _PARSER_
