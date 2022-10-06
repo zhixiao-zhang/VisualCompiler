@@ -13,4 +13,4 @@ lex.yy.o : src/compiler.l include/semantic.h
 	gcc -g -c lex.yy.c -I include
 .PHONY : clean
 clean : 
-	-rm zzxcc $(objects) $(midobj) semantic_analysis.txt
+	-rm zzxcc $(objects) $(midobj) semantic_analysis.txt assembly.txt IR.txt
