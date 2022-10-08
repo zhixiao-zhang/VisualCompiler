@@ -552,9 +552,9 @@ int findstruc(pnode val)
 int main(int argc, char **argv)
 {
     int j;
-    FILE *semantic_analysis = fopen("semantic_analysis.txt", "w");
-    FILE *IR = fopen("IR.txt", "w");
-    FILE *assembly = fopen("assembly.txt", "w");
+    FILE *semantic_analysis = fopen("../output/semantic_analysis.txt", "w");
+    FILE *IR = fopen("../output/IR.txt", "w");
+    FILE *assembly = fopen("../output/assembly.txt", "w");
     if (argc < 2) {
         return 1;
     }
