@@ -629,7 +629,7 @@ int main(int argc, char **argv)
         // 遍历所有非子节点的节点
         if (hasFault)
             continue;
-        for (j = 0; j < _nodeNum && !strcmp(argv[1], "-p"); j++) {
+        for (j = 0; j < _nodeNum; j++) {
             if (nodeIsChild[j] != 1) {
                 Preorder(nodeList[j], 0, semantic_analysis);
                 InterCode codes = translate_Program(nodeList[j]);
