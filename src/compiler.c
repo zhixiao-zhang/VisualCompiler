@@ -558,7 +558,7 @@ int main(int argc, char **argv)
     if (argc < 2) {
         return 1;
     }
-    for (i = 1; i < argc; i++) {
+    for (i = 2; i < argc; i++) {
         // 初始化，用于记录结构体域
         inStruc = 0;
         LCnum = 0;
@@ -629,12 +629,16 @@ int main(int argc, char **argv)
         // 遍历所有非子节点的节点
         if (hasFault)
             continue;
-        for (j = 0; j < _nodeNum; j++) {
+        for (j = 0; j < _nodeNum && !strcmp(argv[1], "-p"); j++) {
             if (nodeIsChild[j] != 1) {
                 Preorder(nodeList[j], 0, semantic_analysis);
                 InterCode codes = translate_Program(nodeList[j]);
-                print_Codes(codes, IR);
-                generate_MIPS_Codes(codes, assembly);
+                if (!strcmp(argv[1], "-I") || !strcmp(argv[1], "-S")) {
+                    print_Codes(codes, IR);
+                }
+                if (!strcmp(argv[1], "-S")) {
+                    generate_MIPS_Codes(codes, assembly);
+                }
             }
         }
     }
